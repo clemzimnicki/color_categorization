@@ -686,58 +686,48 @@
 
       
   async function initExperiment() {
-    try {
-        const response = await fetch('categoryStimuli.json'); // adjust path as needed
-        if (!response.ok) throw new Error("Could not load JSON: " + response.status);
-        const allimg_triplets = await response.json(); 
-        // Expects a flat array of filenames, e.g.:
-        // ["color1_C9A0A9.png", "color1_CA92AA.png", "color2_47182F.png", ...]
+    const allimg_triplets = categoryStims;
 
-        // Build full paths for preloading
-        var categoryStims = allimg_triplets.map(name => 'img_cat/' + name);
+    var categoryStimPaths = allimg_triplets.map(name => 'img_cat/' + name);
 
-        // Preload block now that we have the image list
-        var preload_category = {
-            type: jsPsychPreload,
-            auto_preload: true,
-            images: categoryStims,
-            show_progress_bar: true,
-            message: "Loading experiment files...",
-            error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
-        };
-        timeline.push(preload_category);
+    var preload_category = {
+        type: jsPsychPreload,
+        auto_preload: true,
+        images: categoryStimPaths,
+        show_progress_bar: true,
+        message: "Loading experiment files...",
+        error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
+    };
+    timeline.push(preload_category);
 
-        function getGroup(num) {
-            return allimg_triplets
-                .filter(name => name.startsWith('color' + num + '_'))
-                .map(name => 'img_cat/' + name);
-        }
-
-        var catColor1 = getGroup(1);
-        var catColor2 = getGroup(2);
-        var catColor3 = getGroup(3);
-        var catColor4 = getGroup(4);
-
-        catColor1.forEach(function(img_cat) {
-            catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'ArrowLeft',  color_group: 'color1' });
-        });
-        catColor2.forEach(function(img_cat) {
-            catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'ArrowRight', color_group: 'color2' });
-        });
-        catColor3.forEach(function(img_cat) {
-            catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color3' });
-        });
-        catColor4.forEach(function(img_cat) {
-            catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color4' });
-        });
-
-    } catch (err) {
-        console.error("Could not load color images from JSON:", err);
+    function getGroup(num) {
+        return allimg_triplets
+            .filter(name => name.startsWith('color' + num + '_'))
+            .map(name => 'img_cat/' + name);
     }
+
+    var catColor1 = getGroup(1);
+    var catColor2 = getGroup(2);
+    var catColor3 = getGroup(3);
+    var catColor4 = getGroup(4);
+
+    catColor1.forEach(function(img_cat) {
+        catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'ArrowLeft', color_group: 'color1' });
+    });
+    catColor2.forEach(function(img_cat) {
+        catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'ArrowRight', color_group: 'color2' });
+    });
+    catColor3.forEach(function(img_cat) {
+        catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color3' });
+    });
+    catColor4.forEach(function(img_cat) {
+        catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color4' });
+    });
 
     jsPsych.run(timeline);
 }
-    initExperiment();
+
+initExperiment();
 
   //-----------------------------------------color vision check-----------------------------------------
 
