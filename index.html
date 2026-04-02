@@ -673,7 +673,7 @@
     // ---- Block 2 trial (no feedback, no correct answer) ----
     var cat_trial_block2 = {
         type: jsPsychImageKeyboardResponse,
-        stimulus: jsPsych.timelineVariable('cat_img_triplets'),
+        stimulus: jsPsych.timelineVariable('catStims'),
         stimulus_height: 200,
         stimulus_width: 200,
         choices: ['ArrowLeft', 'ArrowRight'],
@@ -696,56 +696,44 @@
 
 
       
-    // Fetch color image lists from GitHub API, then start the experiment
-    async function initExperiment() {
-        try {
-            const apiUrl = "https://api.github.com/repos/clemzimnicki/color_categorization/img_cat";
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error("GitHub API request failed: " + response.status);
-            const files = await response.json();
+  async function initExperiment() {
+    try {
+        const response = await fetch('categoryStimuli.json'); // adjust path as needed
+        if (!response.ok) throw new Error("Could not load JSON: " + response.status);
+        const allimg_triplets = await response.json(); 
+        // Expects a flat array of filenames, e.g.:
+        // ["color1_C9A0A9.png", "color1_CA92AA.png", "color2_47182F.png", ...]
 
-            // Extract just the filenames that are .png color stimuli
-            const allimg_triplets = files
-                .map(f => f.name)
-                .filter(name => name.endsWith('.png'));
-
-            // Group by color set number (color1_, color2_, etc.)
-            function getGroup(num) {
-                return allimg_tripletss
-                    .filter(name => name.startsWith('color' + num + '_'))
-                    .map(name => 'img_cat/' + name);
-            }
-
-            var catColor1 = getGroup(1);
-            var catColor2 = getGroup(2);
-            var catColor3 = getGroup(3);
-            var catColor4 = getGroup(4);
-
-            // Block 1: color1 = left (correct), color2 = right (correct)
-            catColor1.forEach(function(img_cat) {
-                catBlock1Stimuli.push({ cat_img: img_cat, correct_response: 'ArrowLeft',  color_group: 'color1' });
-            });
-            catColor2.forEach(function(img_cat) {
-                catBlock1Stimuli.push({ cat_img: img_cat, correct_response: 'ArrowRight', color_group: 'color2' });
-            });
-
-            // Block 2: color3 vs color4 — no correct answer
-            catColor3.forEach(function(img_cat) {
-                catBlock2Stimuli.push({ cat_img: img_cat, correct_response: null, color_group: 'color3' });
-            });
-            catColor4.forEach(function(img_cat) {
-                catBlock2Stimuli.push({ cat_img: img_cat, correct_response: null, color_group: 'color4' });
-            });
-
-        } catch (err) {
-            console.error("Could not load color images from GitHub API:", err);
-            // Experiment will continue but categorization blocks will be empty;
-            // check the console if the categorization trials don't appear.
+        function getGroup(num) {
+            return allimg_triplets
+                .filter(name => name.startsWith('color' + num + '_'))
+                .map(name => 'img_cat/' + name);
         }
 
-        jsPsych.run(timeline);
+        var catColor1 = getGroup(1);
+        var catColor2 = getGroup(2);
+        var catColor3 = getGroup(3);
+        var catColor4 = getGroup(4);
+
+        catColor1.forEach(function(img_cat) {
+            catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'ArrowLeft',  color_group: 'color1' });
+        });
+        catColor2.forEach(function(img_cat) {
+            catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'ArrowRight', color_group: 'color2' });
+        });
+        catColor3.forEach(function(img_cat) {
+            catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color3' });
+        });
+        catColor4.forEach(function(img_cat) {
+            catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color4' });
+        });
+
+    } catch (err) {
+        console.error("Could not load color images from JSON:", err);
     }
 
+    jsPsych.run(timeline);
+}
     initExperiment();
 
   //-----------------------------------------color vision check-----------------------------------------
