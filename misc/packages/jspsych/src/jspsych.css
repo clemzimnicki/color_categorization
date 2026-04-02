@@ -1,0 +1,328 @@
+/*
+ * CSS for jsPsych experiments.
+ *
+ * This stylesheet provides minimal styling to make jsPsych
+ * experiments look polished without any additional styles.
+ */
+
+ @import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700);
+
+/* Container holding jsPsych content */
+
+ .jspsych-display-element {
+   display: flex;
+   flex-direction: column;
+   overflow-y: auto;
+ }
+
+ .jspsych-display-element:focus {
+   outline: none;
+ }
+
+ .jspsych-content-wrapper {
+   display: flex;
+   margin: auto;
+   flex: 1 1 100%;
+   width: 100%;
+ }
+
+ .jspsych-content {
+   max-width: 95%; /* this is mainly an IE 10-11 fix */
+   text-align: center;
+   margin: auto; /* this is for overflowing content */
+ }
+
+ .jspsych-top {
+   align-items: flex-start;
+ }
+
+ .jspsych-middle {
+   align-items: center;
+ }
+
+/* fonts and type */
+
+.jspsych-display-element {
+  font-family: 'Open Sans', 'Arial', sans-serif;
+  font-size: 18px;
+  line-height: 1.6em;
+}
+
+/* Form elements like input fields and buttons */
+
+.jspsych-display-element input[type="text"] {
+  font-family: 'Open Sans', 'Arial', sans-serif;
+  font-size: 14px;
+}
+
+/* borrowing Bootstrap style for btn elements, but combining styles a bit */
+.jspsych-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 0px;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'Open Sans', 'Arial', sans-serif;
+  cursor: pointer;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+.jspsych-btn:hover {
+  background-color: #ddd;
+  border-color: #aaa;
+}
+
+.jspsych-btn:disabled {
+  background-color: #eee;
+  color: #aaa;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* jsPsych progress bar */
+
+#jspsych-progressbar-container {
+  color: #555;
+  border-bottom: 1px solid #dedede;
+  background-color: #f9f9f9;
+  margin-bottom: 1em;
+  text-align: center;
+  padding: 8px 0px;
+  width: 100%;
+  line-height: 1em;
+}
+#jspsych-progressbar-container span {
+  font-size: 14px;
+  padding-right: 14px;
+}
+#jspsych-progressbar-outer {
+  background-color: #eee;
+  width: 50%;
+  margin: auto;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+#jspsych-progressbar-inner {
+  background-color: #aaa;
+  width: 0%;
+  height: 100%;
+}
+
+/* Control appearance of jsPsych.data.displayData() */
+#jspsych-data-display {
+  text-align: left;
+}
+
+
+/* Additional things added by MAS */
+
+/* To shift image over/up during feedback of categorization (classes)*/ 
+.jspsych-image-keyboard-response-left {
+  position: relative; 
+  left: -185px;
+  top: -100px; 
+  z-index: -1; 
+}
+
+.jspsych-image-keyboard-response-right { 
+  position: relative; 
+  right: -185px;
+  top: -100px; 
+  z-index: -1; 
+}
+
+
+/* ------------------ */
+/* Slider creation */
+.jspsych-image-slider-response-sliderColor {
+  -webkit-appearance: none;
+  height: 5px; 
+  background-color: black;
+  outline: none;
+  z-index: 1;
+}
+
+/* Slider cursor */
+.jspsych-image-slider-response-sliderColor::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 7px;
+  height: 20px;
+  border-radius: 0%;
+  background: white;
+  cursor: pointer;
+}
+
+/* Tick marks on slider */
+/* Center tick */
+hr.verticalC {
+  width: 3px;
+  height: 32px;
+  background-color: black; 
+  border: none; 
+  z-index: -1; 
+  position:absolute; 
+  left: 200px; 
+  top: -5px;
+}
+
+/* Left tick */
+hr.verticalL {
+  width: 3px;
+  height: 32px;
+  background-color: black; 
+  border: none; 
+  z-index: -1; 
+  position: absolute; 
+  left: 0px;
+  top: -5px;
+}
+
+/* Right tick */
+hr.verticalR {
+  width: 3px;
+  height: 32px;
+  background-color: black; 
+  border: none; 
+  z-index: -1; 
+  position: absolute; 
+  left: 400px;
+  top: -5px;
+}
+
+
+/* Split screen */
+/* Split the screen in half */
+.split {
+  height: 100%;
+  position: fixed;
+  top: 0;
+  overflow-x: visible;
+  padding-top: 20px;
+  padding-left: 50px;
+}
+
+/* Control the left side */
+.left {
+  left: -50px;
+  background-color: rgb(88, 88, 88);
+  z-index: 1;  
+  width: 45%;
+  padding-left: 5%;
+}
+
+.centerSplit{
+  left: 55%;
+  background-color: red;
+  width: 5%;
+}
+/* Control the right side */
+.right {
+  right: 0;
+  background-color: rgb(88, 88, 88);
+  z-index: 1;
+  width: 45%; 
+  padding-right: 5%;
+}
+
+/* If you want the content centered horizontally and vertically */
+.centered {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* Style the image inside the centered container, if needed */
+.centered img {
+  width: 100px;
+  border-radius: 0%;
+}
+
+
+/* Style the image inside the centered container, if needed */
+.centeredRel_img {
+  width: 10%;
+  border-radius: 0%;
+}
+
+
+
+
+/* ColoredSquare */
+.centerSquare {
+  position: relative;
+  height: auto; 
+  width: auto; 
+  margin: 0 auto 3em auto;
+} 
+
+
+
+
+/* Images on top of each other */
+
+/* Parent div to house all images */
+.parent{
+  position: relative; 
+}
+
+/* Background image */
+.backgroundBox {
+  position: relative;
+  top: 0;
+  height: auto; 
+  width: auto; 
+  left: 0px;
+}
+
+
+/* Bottom image */
+.image1L {
+  position: relative;
+  top: 0;
+  height: 150px; 
+  width: auto; 
+  left: -30px;
+}
+
+
+/* top image */
+.image2L {
+  position: relative;
+  top: 0;
+  height: 150px; 
+  width: auto; 
+  left: -30px;
+}
+
+/* Bottom image */
+.image1R {
+  position: relative;
+  top: 0;
+  height: 150px; 
+  width: auto; 
+  right: -30px;
+}
+
+
+/* top image */
+.image2R {
+  position: relative;
+  top: 0;
+  height: 150px; 
+  width: auto; 
+  right: -30px;
+}
