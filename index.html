@@ -587,18 +587,7 @@
     // Block 1: color1 (left arrow = correct) vs color2 (right arrow = correct)
     // Block 2: color3 vs color4, no correct answer
 
-    // preload stimuli
-    var preload_category = {
-        type: jsPsychPreload,
-        auto_preload: true,
-        images: categoryStims,
-        show_progress_bar: true,
-        message: "Loading experiment files...",
-        error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
-    }  
-    timeline.push(preload_category);
 
-    var catStims = categoryStims //load in all the stimulus names
 
     var catBlock1Stimuli = [];
     var catBlock2Stimuli = [];
@@ -703,6 +692,20 @@
         const allimg_triplets = await response.json(); 
         // Expects a flat array of filenames, e.g.:
         // ["color1_C9A0A9.png", "color1_CA92AA.png", "color2_47182F.png", ...]
+
+        // Build full paths for preloading
+        var categoryStims = allimg_triplets.map(name => 'img_cat/' + name);
+
+        // Preload block now that we have the image list
+        var preload_category = {
+            type: jsPsychPreload,
+            auto_preload: true,
+            images: categoryStims,
+            show_progress_bar: true,
+            message: "Loading experiment files...",
+            error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
+        };
+        timeline.push(preload_category);
 
         function getGroup(num) {
             return allimg_triplets
