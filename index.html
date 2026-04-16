@@ -44,17 +44,6 @@
   <script>
 
 
-    var jsPsych = initJsPsych({
-        show_progress_bar:false,
-        on_data_update: function(){
-            jsPsych.data.addProperties({worker_id: urlvar.workerId});
-        },
-        on_finish: function(){
-            jsPsych.data.addProperties({worker_id: urlvar.workerId});
-        },
-        max_load_time: 120000
-    });
-
     //set bg color to medium gray
     document.body.style.backgroundColor = "rgb(89,89,89)" //(D65 illuminant gray)
 
@@ -80,7 +69,6 @@
     var timeline = [];
       
 
-
     // preload stimuli
     var preload = {
         type: jsPsychPreload,
@@ -91,6 +79,7 @@
         error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
     }  
     timeline.push(preload);
+
 
 
     var stimuli = [];
@@ -152,13 +141,21 @@
             timeline.push(endExperiment);
         }
 
-
-    //define welcome message trial 
-    var welcome = {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: "Welcome to the experiment. Press any key to begin."
+    var intro = {
+    type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
+    stimulus: "<p>Welcome! This experiment has 4 parts: a consent form, 2 experimental tasks, and demographic information." +
+    "</p><p>It will take about one hour to complete.</strong><br>"+
+        "At the bottom of this screen, you will see a button that says 'Begin Experiment.'</p>" +
+        "<p>Please only click that button when you are ready to complete the '+expTime+' minute experiment in one sitting.</p>"+
+        "<p> Once you click that button, it will not be possible to restart the experiment."+
+        "<p>Click 'Begin Experiment' when you are ready.</p>",
+    choices: ["Begin Experiment"],
+    //post_trial_gap: 2000,
+    on_finish: function(){
+        shuffle(validation_concat);
+    }
     };
-    timeline.push(welcome);
+   timeline.push(intro);  
       
       
     timeline.push({
@@ -231,7 +228,7 @@
       
     var lasttrialdata_rt = 0;
 
-    var displayAdjust = {
+/*    var displayAdjust = {
         type: jsPsychSurveyHtmlForm,
         preamble:
             "<p>Before beginning the experiment, please ensure that you are using a computer to complete the experiment, NOT a phone or tablet, <br>" +
@@ -250,18 +247,20 @@
         html: '<p> There are <input name="first" type="text" /> squares.</p>'
     };
     timeline.push(displayAdjust)
-
+*/
           
+
     /* define testing instructions */
     var instructions = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
-      stimulus: "<p>In each trial of this task, you will see three images: one target item on top, and two choices beneath the target item." +
+      stimulus: "<p>In each trial of the first task, you will see three images: one target item on top, and two choices beneath the target item." +
         "</p><p>For each trial, <strong>please select the item that is most like the target item.</strong><br>"+
         "If you think the color on the <strong>left</strong> is most similar to the color on top, please press the left arrow key.<br>" +
         "If you think the color on the <strong>right</strong> is most similar to the color on top, please press the right arrow key.<br>" +
         "<p>There may be trials with no obvious answer. In those cases, use your best judgment." +
-        "<p>There will be 3 rounds of this task with 280 trials per round. You will have the opportunity to take breaks between rounds. </p>"+
-          "<p>Click 'Continue' to begin the test.</p>",
+        "<p>This task will take about half an hour: there will be 3 rounds with 280 trials per round.<br>"+
+        "You will have the opportunity to take breaks between rounds.</p>"+
+        "<p>Click 'Continue' to begin the task.</p>",
         choices: ["Continue"],
         post_trial_gap: 2000,
         on_finish: function(){
@@ -271,6 +270,7 @@
     };
    timeline.push(instructions);  
       
+   
       
     var fixation = {
         type: jsPsychHtmlKeyboardResponse,
@@ -279,7 +279,7 @@
         trial_duration: 500
     };
     timeline.push(fixation);
-    
+  /*   
     var arr_pair = [];
 
     // define the trials!
@@ -564,7 +564,17 @@
         "<p>Remember, your task is to <strong>select the item most similar to the item on top.</strong>",
         choices: ["Continue"]
     };
-        
+    
+        // 840 trials total
+        // 84 (52+32) are validation trials; 
+        // 714 are "regular" trials, so 238 trials per block
+            //17*42 = 714
+            //17*14 = 238, 238 * 3 = 714
+        // 42 attention checks (1 check per ~17 real trials, or 1 check for every 14 repetitions)
+    //in each block there are:
+        //238 "regular" trials
+        //14 attention checks
+        //28 validation trials
 
     var procedure = {
         timeline: [trial_procedure, check_procedure, validation_procedure],
@@ -579,14 +589,8 @@
     timeline.push(procedure);
     timeline.push(quick_break);
     timeline.push(procedure);
-
+*/
   //-----------------------------------------categorization task-----------------------------------------
-
-    // Color sets are fetched from the GitHub API in initExperiment() below.
-    // Naming scheme: color1_HEXCODE.png, color2_HEXCODE.png, etc.
-    // Block 1: color1 (left arrow = correct) vs color2 (right arrow = correct)
-    // Block 2: color3 vs color4, no correct answer
-
 
 
     var catBlock1Stimuli = [];
@@ -605,7 +609,6 @@
         choices: ["Continue"],
         post_trial_gap: 500
     };
-    timeline.push(cat_instructions_block1);
 
     // ---- Block 1 trial (with feedback) ----
     var cat_trial_block1 = {
@@ -617,6 +620,9 @@
         prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
         on_finish: function(data) {
             var correct_resp = jsPsych.timelineVariable('correct_response');
+            console.log("response:", data.response);
+            console.log("correct_resp:", correct_resp);
+            console.log("match:", data.response === correct_resp);
             data.correct_response = correct_resp;
             data.color_group      = jsPsych.timelineVariable('color_group');
             data.correct          = (data.response === correct_resp);
@@ -639,32 +645,25 @@
         }
     };
 
-    var cat_procedure_block1 = {
-        timeline: [fixation, cat_trial_block1, cat_feedback_node_block1],
-        timeline_variables: catBlock1Stimuli,
-        randomize_order: true
-    };
-    timeline.push(cat_procedure_block1);
-
     // ---- Break between categorization blocks ----
     var cat_break = {
         type: jsPsychHtmlButtonResponse,
         stimulus:
             "<p>Great work! Feel free to take a short break.</p>" +
             "<p>In the next block, you will categorize a new set of colors using the same left and right arrow keys.<br>" +
-            "There is <strong>no correct answer</strong> this time — just go with your intuition.</p>" +
+            "This time, you will not be told if your answer is correct or not. If you are unsure, make your best guess.</p>" +
             "<p>Click <strong>Continue</strong> when you are ready.</p>",
         choices: ["Continue"],
         post_trial_gap: 500
     };
-    timeline.push(cat_break);
+    
 
     // ---- Block 2 trial (no feedback, no correct answer) ----
     var cat_trial_block2 = {
         type: jsPsychImageKeyboardResponse,
         stimulus: jsPsych.timelineVariable('catStims'),
-        stimulus_height: 200,
-        stimulus_width: 200,
+        stimulus_height: 150,
+        stimulus_width: 150,
         choices: ['ArrowLeft', 'ArrowRight'],
         prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
         on_finish: function(data) {
@@ -674,12 +673,6 @@
         }
     };
 
-    var cat_procedure_block2 = {
-        timeline: [fixation, cat_trial_block2],
-        timeline_variables: catBlock2Stimuli,
-        randomize_order: true
-    };
-    timeline.push(cat_procedure_block2);
 
   //-----------------------------------------categorization task---------------------------------------
 
@@ -688,12 +681,10 @@
   async function initExperiment() {
     const allimg_triplets = categoryStims;
 
-    var categoryStimPaths = allimg_triplets.map(name => 'img_cat/' + name);
-
     var preload_category = {
         type: jsPsychPreload,
         auto_preload: true,
-        images: categoryStimPaths,
+        images: categoryStims,
         show_progress_bar: true,
         message: "Loading experiment files...",
         error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
@@ -701,9 +692,8 @@
     timeline.push(preload_category);
 
     function getGroup(num) {
-        return allimg_triplets
-            .filter(name => name.startsWith('color' + num + '_'))
-            .map(name => 'img_cat/' + name);
+    return allimg_triplets
+        .filter(name => name.includes('color' + num + '_'));
     }
 
     var catColor1 = getGroup(1);
@@ -711,20 +701,45 @@
     var catColor3 = getGroup(3);
     var catColor4 = getGroup(4);
 
-    catColor1.forEach(function(img_cat) {
-        catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'ArrowLeft', color_group: 'color1' });
+    // block 1: color 1 (pink) vs color 4 (dark purple)
+    // block 2: color 2 (red) vs color 3 (light purple0)
+
+    catColor1.forEach(function(img_cat) { 
+        catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'arrowleft', color_group: 'color1' });
     });
-    catColor2.forEach(function(img_cat) {
-        catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'ArrowRight', color_group: 'color2' });
+    catColor4.forEach(function(img_cat) {
+        catBlock1Stimuli.push({ catStims: img_cat, correct_response: 'arrowright', color_group: 'color4' });
     });
+
+
     catColor3.forEach(function(img_cat) {
         catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color3' });
     });
-    catColor4.forEach(function(img_cat) {
-        catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color4' });
+    catColor2.forEach(function(img_cat) {
+        catBlock2Stimuli.push({ catStims: img_cat, correct_response: null, color_group: 'color2' });
     });
 
-    jsPsych.run(timeline);
+
+    // NOW define the procedures, after arrays are filled
+    var cat_procedure_block1 = {
+        timeline: [fixation, cat_trial_block1, cat_feedback_node_block1],
+        timeline_variables: catBlock1Stimuli,
+        randomize_order: true
+    };
+
+    var cat_procedure_block2 = {
+        timeline: [fixation, cat_trial_block2],
+        timeline_variables: catBlock2Stimuli,
+        randomize_order: true
+    };
+
+    // All pushes in one place, in order
+    timeline.push(preload_category);
+    timeline.push(cat_instructions_block1);
+    timeline.push(cat_procedure_block1);
+    timeline.push(cat_break);
+    timeline.push(cat_procedure_block2);
+
 }
 
 initExperiment();
@@ -797,7 +812,7 @@ initExperiment();
             //Present trial
             var ishihara_plate = {
                 type: jsPsychImageTextResponseMAS,
-                stimulus: "ishiharaPlateimg_triplets/ishihara-"+whichPlate+".png", 
+                stimulus: "ishiharaPlateImg/ishihara-"+whichPlate+".png", 
                 stimulus_height: 400, 
                 correctAnswer: answer,
                 on_start: function(trial) {
@@ -906,20 +921,24 @@ var demographics = {
    var goodbye = {
       type: jsPsychHtmlButtonResponse,
       stimulus: function(){
-        // the secret code changes for different experiments on Prolific
+        participantID = jsPsych.data.get().first(1).select('response').values[0].participantID;
+        jsPsych.data.get().localSave('csv',"categories_"+participantID+".csv")
         output = "<p>Great job! You have finished the experiment. <br> "
+            
         + "Many researchers argue that even though people can differ in their experiences, biological constraints "
         + "lead to most having very similar representations of the world, so that, for example, our representations of "
         + "animals remain very similar between people."
         + "We think that the amount that people differ has been consistently underestimated. One way that we are testing for this is "
-        + "through similarity tasks like the one in this experiment. We expect that people will systematically differ in their "
+        + "through similarity tasks like the first task you did, the triplet task. We expect that people will systematically differ in their "
         + "perceptions of how similar colors are to each other."
+        + "We also expect that these differences between people will be reflected in a second categorization task, which would mean"
+        + "that they affect our behavior in several different ways."
         + "You may now exit this page. Thank you for participating!</p>"
-        + "<strong> Here is your secret code: CBWFX0NG </strong><br> Goodbye!<br><br>";
+        
       return output;
       },
-      choices: ["<a href='https://app.prolific.com/submissions/complete?cc=CBWFX0NG'>Complete Experiment</a>"]    
-      //choices: "NO_KEYS"
+      
+      choices: "NO_KEYS"
    };
   
 
@@ -934,6 +953,7 @@ var demographics = {
     fullscreen_mode: false
     })
 
+    jsPsych.run(timeline);
 
 
   </script>

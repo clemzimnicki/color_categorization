@@ -1,262 +1,262 @@
 validationRandom= [
   {
-    head: 'img/000000.png',
-    choice_1: 'img/077ACC.png',
-    choice_2: 'img/C7B88B.png'
+    head: 'img_triplets/000000.png',
+    choice_1: 'img_triplets/077ACC.png',
+    choice_2: 'img_triplets/C7B88B.png'
   },
   {
-    head: 'img/443B14.png',
-    choice_1: 'img/AAC510.png',
-    choice_2: 'img/E81A4B.png'
+    head: 'img_triplets/443B14.png',
+    choice_1: 'img_triplets/AAC510.png',
+    choice_2: 'img_triplets/E81A4B.png'
   },
   {
-    head: 'img/777777.png',
-    choice_1: 'img/7EC6BA.png',
-    choice_2: 'img/CD26C7.png'
+    head: 'img_triplets/777777.png',
+    choice_1: 'img_triplets/7EC6BA.png',
+    choice_2: 'img_triplets/CD26C7.png'
   },
   {
-    head: 'img/1C3D61.png',
-    choice_1: 'img/D5B811.png',
-    choice_2: 'img/F1A78A.png'
+    head: 'img_triplets/1C3D61.png',
+    choice_1: 'img_triplets/D5B811.png',
+    choice_2: 'img_triplets/F1A78A.png'
   },
   {
-    head: 'img/67CF5C.png',
-    choice_1: 'img/DB1F9D.png',
-    choice_2: 'img/F7A75A.png'
+    head: 'img_triplets/67CF5C.png',
+    choice_1: 'img_triplets/DB1F9D.png',
+    choice_2: 'img_triplets/F7A75A.png'
   },
   {
-    head: 'img/1C3D61.png',
-    choice_1: 'img/B9B9B9.png',
-    choice_2: 'img/D5A9E4.png'
+    head: 'img_triplets/1C3D61.png',
+    choice_1: 'img_triplets/B9B9B9.png',
+    choice_2: 'img_triplets/D5A9E4.png'
   },
   {
-    head: 'img/4DC7E8.png',
-    choice_1: 'img/67CF5C.png',
-    choice_2: 'img/746BCA.png'
+    head: 'img_triplets/4DC7E8.png',
+    choice_1: 'img_triplets/67CF5C.png',
+    choice_2: 'img_triplets/746BCA.png'
   },
   {
-    head: 'img/3518AD.png',
-    choice_1: 'img/A8664B.png',
-    choice_2: 'img/D0B85A.png'
+    head: 'img_triplets/3518AD.png',
+    choice_1: 'img_triplets/A8664B.png',
+    choice_2: 'img_triplets/D0B85A.png'
   },
   {
-    head: 'img/90689F.png',
-    choice_1: 'img/AC6619.png',
-    choice_2: 'img/B62EF2.png'
+    head: 'img_triplets/90689F.png',
+    choice_1: 'img_triplets/AC6619.png',
+    choice_2: 'img_triplets/B62EF2.png'
   },
   {
-    head: 'img/5E2B3A.png',
-    choice_1: 'img/83764C.png',
-    choice_2: 'img/A553C8.png'
+    head: 'img_triplets/5E2B3A.png',
+    choice_1: 'img_triplets/83764C.png',
+    choice_2: 'img_triplets/A553C8.png'
   },
   {
-    head: 'img/1C3D61.png',
-    choice_1: 'img/67CF5C.png',
-    choice_2: 'img/A8664B.png'
+    head: 'img_triplets/1C3D61.png',
+    choice_1: 'img_triplets/67CF5C.png',
+    choice_2: 'img_triplets/A8664B.png'
   },
   {
-    head: 'img/A0BAE6.png',
-    choice_1: 'img/D5A9E4.png',
-    choice_2: 'img/D5B811.png'
+    head: 'img_triplets/A0BAE6.png',
+    choice_1: 'img_triplets/D5A9E4.png',
+    choice_2: 'img_triplets/D5B811.png'
   },
   {
-    head: 'img/7EC6BA.png',
-    choice_1: 'img/B9B9B9.png',
-    choice_2: 'img/FBA714.png'
+    head: 'img_triplets/7EC6BA.png',
+    choice_1: 'img_triplets/B9B9B9.png',
+    choice_2: 'img_triplets/FBA714.png'
   },
   {
-    head: 'img/777777.png',
-    choice_1: 'img/CD26C7.png',
-    choice_2: 'img/E6A8B7.png'
+    head: 'img_triplets/777777.png',
+    choice_1: 'img_triplets/CD26C7.png',
+    choice_2: 'img_triplets/E6A8B7.png'
   },
   {
-    head: 'img/3B3B3B.png',
-    choice_1: 'img/512D5F.png',
-    choice_2: 'img/CC4F1B.png'
+    head: 'img_triplets/3B3B3B.png',
+    choice_1: 'img_triplets/512D5F.png',
+    choice_2: 'img_triplets/CC4F1B.png'
   },
   {
-    head: 'img/2E3086.png',
-    choice_1: 'img/AC6619.png',
-    choice_2: 'img/FFFFFF.png'
+    head: 'img_triplets/2E3086.png',
+    choice_1: 'img_triplets/AC6619.png',
+    choice_2: 'img_triplets/FFFFFF.png'
   },
   {
-    head: 'img/3518AD.png',
-    choice_1: 'img/3B3B3B.png',
-    choice_2: 'img/4BCF8E.png'
+    head: 'img_triplets/3518AD.png',
+    choice_1: 'img_triplets/3B3B3B.png',
+    choice_2: 'img_triplets/4BCF8E.png'
   },
   {
-    head: 'img/67CF5C.png',
-    choice_1: 'img/746BCA.png',
-    choice_2: 'img/CD26C7.png'
+    head: 'img_triplets/67CF5C.png',
+    choice_1: 'img_triplets/746BCA.png',
+    choice_2: 'img_triplets/CD26C7.png'
   },
   {
-    head: 'img/3518AD.png',
-    choice_1: 'img/512D5F.png',
-    choice_2: 'img/72005E.png'
+    head: 'img_triplets/3518AD.png',
+    choice_1: 'img_triplets/512D5F.png',
+    choice_2: 'img_triplets/72005E.png'
   },
   {
-    head: 'img/608218.png',
-    choice_1: 'img/632B14.png',
-    choice_2: 'img/B8509E.png'
+    head: 'img_triplets/608218.png',
+    choice_1: 'img_triplets/632B14.png',
+    choice_2: 'img_triplets/B8509E.png'
   },
   {
-    head: 'img/3B3B3B.png',
-    choice_1: 'img/C34F74.png',
-    choice_2: 'img/D0B85A.png'
+    head: 'img_triplets/3B3B3B.png',
+    choice_1: 'img_triplets/C34F74.png',
+    choice_2: 'img_triplets/D0B85A.png'
   },
   {
-    head: 'img/55824D.png',
-    choice_1: 'img/E81A4B.png',
-    choice_2: 'img/EA1D1D.png'
+    head: 'img_triplets/55824D.png',
+    choice_1: 'img_triplets/E81A4B.png',
+    choice_2: 'img_triplets/EA1D1D.png'
   },
   {
-    head: 'img/1C3D61.png',
-    choice_1: 'img/2F6EF6.png',
-    choice_2: 'img/AAC510.png'
+    head: 'img_triplets/1C3D61.png',
+    choice_1: 'img_triplets/2F6EF6.png',
+    choice_2: 'img_triplets/AAC510.png'
   },
   {
-    head: 'img/CD26C7.png',
-    choice_1: 'img/D5A9E4.png',
-    choice_2: 'img/FFFFFF.png'
+    head: 'img_triplets/CD26C7.png',
+    choice_1: 'img_triplets/D5A9E4.png',
+    choice_2: 'img_triplets/FFFFFF.png'
   },
   {
-    head: 'img/000000.png',
-    choice_1: 'img/5E78A1.png',
-    choice_2: 'img/AAC510.png'
+    head: 'img_triplets/000000.png',
+    choice_1: 'img_triplets/5E78A1.png',
+    choice_2: 'img_triplets/AAC510.png'
   },
   {
-    head: 'img/1C3D61.png',
-    choice_1: 'img/5E2B3A.png',
-    choice_2: 'img/C34F74.png'
+    head: 'img_triplets/1C3D61.png',
+    choice_1: 'img_triplets/5E2B3A.png',
+    choice_2: 'img_triplets/C34F74.png'
   },
   {
-    head: 'img/632B14.png',
-    choice_1: 'img/73CF10.png',
-    choice_2: 'img/CC4F1B.png'
+    head: 'img_triplets/632B14.png',
+    choice_1: 'img_triplets/73CF10.png',
+    choice_2: 'img_triplets/CC4F1B.png'
   },
   {
-    head: 'img/B62EF2.png',
-    choice_1: 'img/C94E4B.png',
-    choice_2: 'img/D0B85A.png'
+    head: 'img_triplets/B62EF2.png',
+    choice_1: 'img_triplets/C94E4B.png',
+    choice_2: 'img_triplets/D0B85A.png'
   },
   {
-    head: 'img/7EC6BA.png',
-    choice_1: 'img/A0BAE6.png',
-    choice_2: 'img/C94E4B.png'
+    head: 'img_triplets/7EC6BA.png',
+    choice_1: 'img_triplets/A0BAE6.png',
+    choice_2: 'img_triplets/C94E4B.png'
   },
   {
-    head: 'img/897618.png',
-    choice_1: 'img/D5B811.png',
-    choice_2: 'img/E81A4B.png'
+    head: 'img_triplets/897618.png',
+    choice_1: 'img_triplets/D5B811.png',
+    choice_2: 'img_triplets/E81A4B.png'
   },
   {
-    head: 'img/1C3D61.png',
-    choice_1: 'img/A0BAE6.png',
-    choice_2: 'img/F1A78A.png'
+    head: 'img_triplets/1C3D61.png',
+    choice_1: 'img_triplets/A0BAE6.png',
+    choice_2: 'img_triplets/F1A78A.png'
   },
   {
-    head: 'img/897618.png',
-    choice_1: 'img/A3C55B.png',
-    choice_2: 'img/D0B85A.png'
+    head: 'img_triplets/897618.png',
+    choice_1: 'img_triplets/A3C55B.png',
+    choice_2: 'img_triplets/D0B85A.png'
   },
   {
-    head: 'img/2F6EF6.png',
-    choice_1: 'img/90689F.png',
-    choice_2: 'img/CC4F1B.png'
+    head: 'img_triplets/2F6EF6.png',
+    choice_1: 'img_triplets/90689F.png',
+    choice_2: 'img_triplets/CC4F1B.png'
   },
   {
-    head: 'img/A0BAE6.png',
-    choice_1: 'img/DB1F9D.png',
-    choice_2: 'img/FFFFFF.png'
+    head: 'img_triplets/A0BAE6.png',
+    choice_1: 'img_triplets/DB1F9D.png',
+    choice_2: 'img_triplets/FFFFFF.png'
   },
   {
-    head: 'img/5E78A1.png',
-    choice_1: 'img/8558F4.png',
-    choice_2: 'img/B62EF2.png'
+    head: 'img_triplets/5E78A1.png',
+    choice_1: 'img_triplets/8558F4.png',
+    choice_2: 'img_triplets/B62EF2.png'
   },
   {
-    head: 'img/0E8A19.png',
-    choice_1: 'img/72005E.png',
-    choice_2: 'img/D0B85A.png'
+    head: 'img_triplets/0E8A19.png',
+    choice_1: 'img_triplets/72005E.png',
+    choice_2: 'img_triplets/D0B85A.png'
   },
   {
-    head: 'img/AAC510.png',
-    choice_1: 'img/B62EF2.png',
-    choice_2: 'img/CD26C7.png'
+    head: 'img_triplets/AAC510.png',
+    choice_1: 'img_triplets/B62EF2.png',
+    choice_2: 'img_triplets/CD26C7.png'
   },
   {
-    head: 'img/443B14.png',
-    choice_1: 'img/B62EF2.png',
-    choice_2: 'img/CC4F1B.png'
+    head: 'img_triplets/443B14.png',
+    choice_1: 'img_triplets/B62EF2.png',
+    choice_2: 'img_triplets/CC4F1B.png'
   },
   {
-    head: 'img/2F6EF6.png',
-    choice_1: 'img/632B14.png',
-    choice_2: 'img/F7A75A.png'
+    head: 'img_triplets/2F6EF6.png',
+    choice_1: 'img_triplets/632B14.png',
+    choice_2: 'img_triplets/F7A75A.png'
   },
   {
-    head: 'img/0E8A19.png',
-    choice_1: 'img/1C3D61.png',
-    choice_2: 'img/CC4F1B.png'
+    head: 'img_triplets/0E8A19.png',
+    choice_1: 'img_triplets/1C3D61.png',
+    choice_2: 'img_triplets/CC4F1B.png'
   },
   {
-    head: 'img/B62EF2.png',
-    choice_1: 'img/C34F74.png',
-    choice_2: 'img/E31B73.png'
+    head: 'img_triplets/B62EF2.png',
+    choice_1: 'img_triplets/C34F74.png',
+    choice_2: 'img_triplets/E31B73.png'
   },
   {
-    head: 'img/184415.png',
-    choice_1: 'img/8558F4.png',
-    choice_2: 'img/C94E4B.png'
+    head: 'img_triplets/184415.png',
+    choice_1: 'img_triplets/8558F4.png',
+    choice_2: 'img_triplets/C94E4B.png'
   },
   {
-    head: 'img/8558F4.png',
-    choice_1: 'img/A3C55B.png',
-    choice_2: 'img/D5A9E4.png'
+    head: 'img_triplets/8558F4.png',
+    choice_1: 'img_triplets/A3C55B.png',
+    choice_2: 'img_triplets/D5A9E4.png'
   },
   {
-    head: 'img/2F6EF6.png',
-    choice_1: 'img/A06776.png',
-    choice_2: 'img/CC4F1B.png'
+    head: 'img_triplets/2F6EF6.png',
+    choice_1: 'img_triplets/A06776.png',
+    choice_2: 'img_triplets/CC4F1B.png'
   },
   {
-    head: 'img/600B84.png',
-    choice_1: 'img/E6A8B7.png',
-    choice_2: 'img/FBA714.png'
+    head: 'img_triplets/600B84.png',
+    choice_1: 'img_triplets/E6A8B7.png',
+    choice_2: 'img_triplets/FBA714.png'
   },
   {
-    head: 'img/5E78A1.png',
-    choice_1: 'img/DB1F9D.png',
-    choice_2: 'img/FBA714.png'
+    head: 'img_triplets/5E78A1.png',
+    choice_1: 'img_triplets/DB1F9D.png',
+    choice_2: 'img_triplets/FBA714.png'
   },
   {
-    head: 'img/443B14.png',
-    choice_1: 'img/A8664B.png',
-    choice_2: 'img/E31B73.png'
+    head: 'img_triplets/443B14.png',
+    choice_1: 'img_triplets/A8664B.png',
+    choice_2: 'img_triplets/E31B73.png'
   },
   {
-    head: 'img/73CF10.png',
-    choice_1: 'img/C94E4B.png',
-    choice_2: 'img/E81A4B.png'
+    head: 'img_triplets/73CF10.png',
+    choice_1: 'img_triplets/C94E4B.png',
+    choice_2: 'img_triplets/E81A4B.png'
   },
   {
-    head: 'img/3518AD.png',
-    choice_1: 'img/3B8378.png',
-    choice_2: 'img/A8664B.png'
+    head: 'img_triplets/3518AD.png',
+    choice_1: 'img_triplets/3B8378.png',
+    choice_2: 'img_triplets/A8664B.png'
   },
   {
-    head: 'img/184415.png',
-    choice_1: 'img/CC4F1B.png',
-    choice_2: 'img/E31B73.png'
+    head: 'img_triplets/184415.png',
+    choice_1: 'img_triplets/CC4F1B.png',
+    choice_2: 'img_triplets/E31B73.png'
   },
   {
-    head: 'img/2F6EF6.png',
-    choice_1: 'img/632B14.png',
-    choice_2: 'img/96C58C.png'
+    head: 'img_triplets/2F6EF6.png',
+    choice_1: 'img_triplets/632B14.png',
+    choice_2: 'img_triplets/96C58C.png'
   },
   {
-    head: 'img/3B8378.png',
-    choice_1: 'img/443B14.png',
-    choice_2: 'img/A06776.png'
+    head: 'img_triplets/3B8378.png',
+    choice_1: 'img_triplets/443B14.png',
+    choice_2: 'img_triplets/A06776.png'
   }
 ]
