@@ -909,59 +909,38 @@ var demographics = {
     timeline.push(id_age);
 
     var color_experience = {
-    type: jsPsychSurvey,
-    survey_json: {
-        showQuestionNumbers: false,
-        completeText: "Continue",
-        pages: [{
-        elements: [
-            {
-            type: "html",
-            name: "preamble",
-            html: "<p>We would like to know whether you have experience working with colors or learning about them.<br>" +
-                    "By experience, we mean taking classes where you have learned about color (like art, design, or Perception &amp; Sensation). " +
-                    "These classes can have been taken in high school, college, or through art clubs. " +
-                    "Experience can also mean being an artist, designer, photographer, or working in a color-related field, " +
-                    "even if you have not taken formal classes.</p>"
-            },
+    type: jsPsychSurveyHtmlForm,
+    preamble: "<p>We would like to know whether you have experience working with colors or learning about them.<br>" +
+        "By experience, we mean taking classes where you have learned about color (like art, design, or Perception &amp; Sensation). " +
+        "These classes can have been taken in high school, college, or through art clubs. " +
+        "Experience can also mean being an artist, designer, photographer, or working in a color-related field, " +
+        "even if you have not taken formal classes.</p>",
+    html:
+        "<h3 style='margin-top:1em;'>Classes and Experience</h3>" +
 
-            {type: "html",
-            name: "section1_header",
-            html: "<h3 style='margin-top:1em;'>Classes and Experience</h3>"},
-            {type: "text",
-            name: "art_classes",
-            title: "List all the art classes you have taken. If none, type N/A:",
-            isRequired: true},
-            {type: "text",
-            name: "all_classes",
-            title: "List all other classes you have taken where you learned about color. If none, type N/A:",
-            isRequired: true},
-            {type: "text",
-            name: "hobbies_work",
-            title: "List any hobbyist or professional experience with color. If none, type N/A:",
-            isRequired: true},
-            {type: "text",
-            name: "other_experience",
-            title: "Any other relevant experience? If none, type N/A:",
-            isRequired: true},
+        "<p><label>List all the art classes you have taken. If none, type N/A:<br>" +
+        "<input type='text' name='art_classes' size='60' required></label></p>" +
 
-            {
-            type: "html",
-            name: "section2_header",
-            html: "<h3 style='margin-top:1.5em;'>Yes / No Questions</h3>"},
-            {type: "radiogroup",
-            name: "psych",
-            title: "Have you taken Psychology of Perception (PSYCH 406)?",
-            choices: ["Yes", "No", "Currently enrolled"],
-            isRequired: true},
-            {type: "radiogroup",
-            name: "other_studies",
-            title: "Have you previously participated in any similar studies about colors (e.g., color categorization or triplet/odd-one-out tasks)?",
-            choices: ["No", "Yes", "I'm not sure"],
-            isRequired: true}
-        ]
-        }]
-    }
+        "<p><label>List all other classes you have taken where you learned about color. If none, type N/A:<br>" +
+        "<input type='text' name='all_classes' size='60' required></label></p>" +
+
+        "<p><label>List any hobbyist or professional experience with color. If none, type N/A:<br>" +
+        "<input type='text' name='hobbies_work' size='60' required></label></p>" +
+
+        "<p><label>Any other relevant experience? If none, type N/A:<br>" +
+        "<input type='text' name='other_experience' size='60' required></label></p>" +
+
+        "<h3 style='margin-top:1.5em;'>Yes / No Questions</h3>" +
+
+        "<p>Have you taken Psychology of Perception (PSYCH 406)?<br>" +
+        "<label><input type='radio' name='psych' value='Yes' required> Yes</label> " +
+        "<label><input type='radio' name='psych' value='No'> No</label> " +
+        "<label><input type='radio' name='psych' value='Currently enrolled'> Currently enrolled</label></p>" +
+
+        "<p>Have you previously participated in any similar studies about colors (e.g., color categorization or triplet/odd-one-out tasks)?<br>" +
+        "<label><input type='radio' name='other_studies' value='No' required> No</label> " +
+        "<label><input type='radio' name='other_studies' value='Yes'> Yes</label> " +
+        "<label><input type='radio' name='other_studies' value=\"I'm not sure\"> I'm not sure</label></p>"
     };
     timeline.push(color_experience);
 
