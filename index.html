@@ -145,8 +145,8 @@
     type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
     stimulus: "<p>Welcome! This experiment has 4 parts: a consent form, 2 experimental tasks, and demographic information.</p>" +
         "<p>It will take about one hour to complete."+
-        " At the bottom of this screen, you will see a button that says 'Begin Experiment.'" +
-        " Please only click that button when you are ready to complete the one hour experiment in one sitting."+
+        " At the bottom of this screen, you will see a button that says 'Begin Experiment.'<br>" +
+        " Please only click that button when you are ready to complete the one hour experiment in one sitting.<br>"+
         " Once you click that button, it will not be possible to restart the experiment.</p>"+
         "<p>Click 'Begin Experiment' when you are ready.</p>",
     choices: ["Begin Experiment"],
@@ -625,10 +625,10 @@
         choices: ['ArrowLeft', 'ArrowRight'],
         prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
         on_finish: function(data) {
-            var correct_resp = jsPsych.evaluateTimelineVariable('correct_response');
+            var correct_resp = jsPsych.timelineVariable('correct_response');
             data.correct_response = correct_resp;
-            data.color_group      = jsPsych.evaluateTimelineVariable('color_group');
-            data.block            = jsPsych.evaluateTimelineVariable('block');
+            data.color_group      = jsPsych.timelineVariable('color_group', true);
+            data.block            = jsPsych.timelineVariable('block', true);
             data.correct          = (data.response === correct_resp);
             data.task             = 'categorization_feedback';
         }
@@ -681,8 +681,8 @@
         choices: ['ArrowLeft', 'ArrowRight'],
         prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
         on_finish: function(data) {
-            data.color_group = jsPsych.evaluateTimelineVariable('color_group');
-            data.block       = jsPsych.evaluateTimelineVariable('block');
+            data.color_group = jsPsych.timelineVariable('color_group', true);
+            data.block       = jsPsych.timelineVariable('block', true);
             data.correct     = null;
             data.task        = 'categorization_nofeedback';
         }
