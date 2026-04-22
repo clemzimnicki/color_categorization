@@ -623,7 +623,7 @@
         stimulus_height: 150,
         stimulus_width: 150,
         choices: ['ArrowLeft', 'ArrowRight'],
-        prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
+        //prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
         on_finish: function(data) {
             var correct_resp = jsPsych.timelineVariable('correct_response');
             data.correct_response = correct_resp;
@@ -637,7 +637,8 @@
     var cat_feedback_msg = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: "<p style='color:red;font-size:1.4em;'><strong>Incorrect.</strong></p>" +
-                  "<p>Try to learn which category each color belongs to.<br>Press <strong>y</strong> to continue.</p>",
+                  "<p>Try to learn which category each color belongs to.<br>Press <strong>y</strong> to continue.</p>"+
+                  "<p>Press the <strong>left</strong> or <strong>right</strong> arrow keys to categorize each color.</p>",
         choices: ['y']
     };
 
@@ -679,7 +680,7 @@
         stimulus_height: 150,
         stimulus_width: 150,
         choices: ['ArrowLeft', 'ArrowRight'],
-        prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
+        //prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
         on_finish: function(data) {
             data.color_group = jsPsych.timelineVariable('color_group', true);
             data.block       = jsPsych.timelineVariable('block', true);
