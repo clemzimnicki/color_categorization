@@ -601,17 +601,49 @@
     // Quartets: (color1-4), (color5-8), (color9-12), (color13-16)
     // Example: Block 1 feedback part = color1 vs color4, no-feedback part = color2 vs color3
 
+    /* define category instructions, explain task */
+    var catInstructionsFirst = {
+      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
+      stimulus: 
+            "<p>In this part of the experiment, you will see a color on each trial.<br>" +
+            "Your task is to categorize it by pressing the <strong>left</strong> or <strong>right</strong> arrow key.</p>" +
+            "<p>There is a <strong>correct answer</strong> on each trial.<br>" +
+            "You will be told if you make a correct or incorrect response so you can learn the categories over time.</p>" +
+            "There will first be a short practice round.</p>" +
+            "<p>Press <strong>Continue</strong> when you are ready to begin the practice round.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 500,
+    };
+    timeline.push(catInstructionsFirst);
+
+    
+    var practiceEnd = {
+      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
+      stimulus: 
+            "<p>Good job! You have finished the practice round.</p>" +
+            "<p>The rest of the task will be similar. Categorize each color using the <strong>left</strong> or <strong>right</strong> arrow keys.<br>"+ 
+            "There will be four total blocks. In the first half of each block, you will be told if you make a correct or incorrect<br>" +
+            "response so you can learn the categories over time.</p>"+
+            "<p>In the second half of each block, you will categorize more colors, and you will not be given feedback.<br>" +
+            "If you are unsure which category a color belongs to, make your best guess.</p>" +
+            "<p>Press <strong>Continue</strong> when you are ready to begin the task.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 500,
+    };
+    timeline.push(practiceEnd);
+
+
+
+
     // ---- Instructions (parameterized by block number) ----
     function makeCatInstructions(blockNum) {
         return {
             type: jsPsychHtmlButtonResponse,
             stimulus:
                 "<p><strong>Categorization Task — Block " + blockNum + "</strong></p>" +
-                "<p>In this part of the experiment, you will see a color on each trial.<br>" +
-                "Your task is to categorize it by pressing the <strong>left</strong> or <strong>right</strong> arrow key.</p>" +
-                "<p>There is a <strong>correct answer</strong> on each trial.<br>" +
-                "You will be told if you make an incorrect response so you can learn the categories over time.</p>" +
-                "<p>Press <strong>Continue</strong> when you are ready to begin.</p>",
+                "<p>In the next block, you will see new colors. You will be told if your response is correct or incorrect.<br>" +
+                "Your task is to categorize colors by pressing the <strong>left</strong> or <strong>right</strong> arrow keys.</p>" +
+                "<p>Press <strong>Continue</strong> when you are ready to begin the next block.</p>",
             choices: ["Continue"],
             post_trial_gap: 500
         };
@@ -635,7 +667,7 @@
         }
     };
 
-    var cat_feedback_msg = {
+    var cat_feedback_wrong = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: "<p style='color:red;font-size:1.4em;'><strong>Incorrect.</strong></p>" +
                   "<p>Try to learn which category each color belongs to.<br>Press <strong>y</strong> to continue.</p>"+
@@ -643,11 +675,26 @@
         choices: ['y']
     };
 
-    var cat_feedback_node = {
-        timeline: [cat_feedback_msg],
+    var cat_feedback_corr = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: "<p style='color:green;font-size:1.4em;'><strong>Correct!</strong></p>"+
+        "<p>Press <strong>y</strong> to continue.</p>",
+        choices: ['y']
+    };
+
+    var cat_feedback_node_wrong = {
+        timeline: [cat_feedback_wrong],
         conditional_function: function() {
             var last = jsPsych.data.get().last(1).values()[0];
             return (last.task === 'categorization_feedback' && last.correct === false);
+        }
+    };
+
+    var cat_feedback_node_corr = {
+        timeline: [cat_feedback_corr],
+        conditional_function: function() {
+            var last = jsPsych.data.get().last(1).values()[0];
+            return (last.task === 'categorization_feedback' && last.correct === true);
         }
     };
 
