@@ -630,7 +630,6 @@
         choices: ["Continue"],
         post_trial_gap: 500,
     };
-    timeline.push(practiceEnd);
 
 
 
@@ -658,7 +657,7 @@
         choices: ['ArrowLeft', 'ArrowRight'],
         //prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
         on_finish: function(data) {
-            var correct_resp = jsPsych.timelineVariable('correct_response');
+            var correct_resp = jsPsych.timelineVariable('correct_response', true);
             data.correct_response = correct_resp;
             data.color_group      = jsPsych.timelineVariable('color_group', true);
             data.block            = jsPsych.timelineVariable('block', true);
@@ -748,65 +747,148 @@
     var preload_category = {
         type: jsPsychPreload,
         auto_preload: true,
-        images: categoryStims,
+        images: categoryStims.concat(practiceCatStims),
         show_progress_bar: true,
         message: "Loading experiment files...",
         error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
     };
 
+    // Main-block images (img_cat/)
     function getGroup(num) {
         return allimg_triplets
             .filter(name => name.includes('color' + num + '_'));
     }
 
-    // For each block: fbLeft / fbRight are shown with feedback (left/right arrow correct),
-    // nofbA / nofbB are shown in the no-feedback part.
-    var blockDefs = [
-        { block: 1, fbLeft: 1,  fbRight: 4,  nofbA: 2,  nofbB: 3  },
-        { block: 2, fbLeft: 5,  fbRight: 8,  nofbA: 6,  nofbB: 7  },
-        { block: 3, fbLeft: 9,  fbRight: 12, nofbA: 10, nofbB: 11 },
-        { block: 4, fbLeft: 13, fbRight: 16, nofbA: 14, nofbB: 15 }
+    // Practice-block images (img_cat_practice/)
+    function getPracticeGroup(num) {
+        return practiceCatStims
+            .filter(name => name.includes('color' + num + '_'));
+    }
+
+    // ---- Practice block ----
+    // Two color pairs: (color1 vs color4) and (color2 vs color3).
+    // Randomly assign per participant which pair is the feedback part and which is the no-feedback part.
+    var practicePairs = jsPsych.randomization.shuffle([
+        { left: 1, right: 4 },
+        { left: 2, right: 3 }
+    ]);
+    var practiceFbPair   = practicePairs[0];
+    var practiceNofbPair = practicePairs[1];
+
+    var practiceFbStimuli = [];
+    getPracticeGroup(practiceFbPair.left).forEach(function(img_cat) {
+        practiceFbStimuli.push({
+            catStims: img_cat,
+            correct_response: 'arrowleft',
+            color_group: 'color' + practiceFbPair.left,
+            block: 'practice'
+        });
+    });
+    getPracticeGroup(practiceFbPair.right).forEach(function(img_cat) {
+        practiceFbStimuli.push({
+            catStims: img_cat,
+            correct_response: 'arrowright',
+            color_group: 'color' + practiceFbPair.right,
+            block: 'practice'
+        });
+    });
+
+    var practiceNofbStimuli = [];
+    getPracticeGroup(practiceNofbPair.left).forEach(function(img_cat) {
+        practiceNofbStimuli.push({
+            catStims: img_cat,
+            color_group: 'color' + practiceNofbPair.left,
+            block: 'practice'
+        });
+    });
+    getPracticeGroup(practiceNofbPair.right).forEach(function(img_cat) {
+        practiceNofbStimuli.push({
+            catStims: img_cat,
+            color_group: 'color' + practiceNofbPair.right,
+            block: 'practice'
+        });
+    });
+
+    var practice_fb_procedure = {
+        timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
+        timeline_variables: practiceFbStimuli,
+        randomize_order: true
+    };
+
+    var practice_nofb_procedure = {
+        timeline: [fixation, cat_trial_nofeedback],
+        timeline_variables: practiceNofbStimuli,
+        randomize_order: true
+    };
+
+    // Four yoked quadruplets. Within a quadruplet the two yoked color pairs
+    // (outer pair + inner pair) are preserved, but we randomize per participant:
+    //   (a) the presentation order of the four quadruplets (block order), and
+    //   (b) within each quadruplet, which yoked pair is the feedback part
+    //       and which is the no-feedback part.
+    // Left/right arrow-key mapping within a pair is preserved (smaller index -> left,
+    // larger index -> right), so the yoking isn't broken.
+    var quadruplets = [
+        { pairA: [1, 4],   pairB: [2, 3]   },
+        { pairA: [5, 8],   pairB: [6, 7]   },
+        { pairA: [9, 12],  pairB: [10, 11] },
+        { pairA: [13, 16], pairB: [14, 15] }
     ];
 
-    timeline.push(preload_category);
+    var shuffledQuads = jsPsych.randomization.shuffle(quadruplets);
 
-    blockDefs.forEach(function(def, idx) {
+    timeline.push(preload_category);
+    timeline.push(practice_fb_procedure);
+    timeline.push(cat_break_within);
+    timeline.push(practice_nofb_procedure);
+    timeline.push(practiceEnd);
+
+    shuffledQuads.forEach(function(quad, idx) {
+        var blockNum = idx + 1;
+
+        // Randomly pick which yoked pair is the feedback pair this participant sees
+        var pairs   = jsPsych.randomization.shuffle([quad.pairA, quad.pairB]);
+        var fbLeft  = pairs[0][0];
+        var fbRight = pairs[0][1];
+        var nofbA   = pairs[1][0];
+        var nofbB   = pairs[1][1];
+
         var fbStimuli = [];
-        getGroup(def.fbLeft).forEach(function(img_cat) {
+        getGroup(fbLeft).forEach(function(img_cat) {
             fbStimuli.push({
                 catStims: img_cat,
                 correct_response: 'arrowleft',
-                color_group: 'color' + def.fbLeft,
-                block: def.block
+                color_group: 'color' + fbLeft,
+                block: blockNum
             });
         });
-        getGroup(def.fbRight).forEach(function(img_cat) {
+        getGroup(fbRight).forEach(function(img_cat) {
             fbStimuli.push({
                 catStims: img_cat,
                 correct_response: 'arrowright',
-                color_group: 'color' + def.fbRight,
-                block: def.block
+                color_group: 'color' + fbRight,
+                block: blockNum
             });
         });
 
         var nofbStimuli = [];
-        getGroup(def.nofbA).forEach(function(img_cat) {
+        getGroup(nofbA).forEach(function(img_cat) {
             nofbStimuli.push({
                 catStims: img_cat,
-                color_group: 'color' + def.nofbA,
-                block: def.block
+                color_group: 'color' + nofbA,
+                block: blockNum
             });
         });
-        getGroup(def.nofbB).forEach(function(img_cat) {
+        getGroup(nofbB).forEach(function(img_cat) {
             nofbStimuli.push({
                 catStims: img_cat,
-                color_group: 'color' + def.nofbB,
-                block: def.block
+                color_group: 'color' + nofbB,
+                block: blockNum
             });
         });
 
         var feedback_procedure = {
-            timeline: [fixation, cat_trial_feedback, cat_feedback_node],
+            timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
             timeline_variables: fbStimuli,
             randomize_order: true
         };
@@ -817,11 +899,11 @@
             randomize_order: true
         };
 
-        timeline.push(makeCatInstructions(def.block));
+        timeline.push(makeCatInstructions(blockNum));
         timeline.push(feedback_procedure);
         timeline.push(cat_break_within);
         timeline.push(nofeedback_procedure);
-        if (idx < blockDefs.length - 1) {
+        if (idx < shuffledQuads.length - 1) {
             timeline.push(cat_break_between);
         }
     });
