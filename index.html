@@ -260,6 +260,14 @@
     // Quartets: (color1-4), (color5-8), (color9-12), (color13-16)
     // Example: Block 1 feedback part = color1 vs color4, no-feedback part = color2 vs color3
 
+    var fixation = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '+',
+        choices: "NO_KEYS",
+        trial_duration: 500
+    };
+    timeline.push(fixation);
+
     /* define category instructions, explain task */
     var catInstructionsFirst = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
@@ -594,15 +602,7 @@ initExperiment();
     };
    timeline.push(instructions_triplets);  
       
-  
-      
-    var fixation = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: '+',
-        choices: "NO_KEYS",
-        trial_duration: 500
-    };
-    timeline.push(fixation);
+
     
     var arr_pair = [];
 
@@ -1146,7 +1146,7 @@ var demographics = {
       return output;
       },
       
-      choices: "NO_KEYS"
+      choices: []
    };
   
 
