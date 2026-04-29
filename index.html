@@ -250,13 +250,335 @@
     timeline.push(displayAdjust)
 */
           
+ //-----------------------------------------categorization task-----------------------------------------
+
+    // 4 blocks. Each block has two parts:
+    //   Part 1 (feedback):    categorize the "outer" pair of a color quartet (left vs right arrow key)
+    //                         -> participants are told when they are wrong
+    //   Part 2 (no feedback): categorize the "inner" pair of the same quartet
+    //                         -> no correct answer is shown
+    // Quartets: (color1-4), (color5-8), (color9-12), (color13-16)
+    // Example: Block 1 feedback part = color1 vs color4, no-feedback part = color2 vs color3
+
+    /* define category instructions, explain task */
+    var catInstructionsFirst = {
+      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
+      stimulus: 
+            "<p>In the first part of the experiment, you will do a new task. You will see a color on each trial.<br>" +
+            "Your task is to categorize it by pressing the <strong>left</strong> or <strong>right</strong> arrow key.</p>" +
+            "<p>There is a <strong>correct answer</strong> on each trial.<br>" +
+            "You will be told if you make a correct or incorrect response so you can learn the categories over time.</p>" +
+            "There will first be a short practice round.</p>" +
+            "<p>Press <strong>Continue</strong> when you are ready to begin the practice round.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 500,
+    };
+    timeline.push(catInstructionsFirst);
 
     
-    //define testing instructions 
-    var instructions = {
+    var practiceEnd = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
-      stimulus: "<p>In each trial of the first task, you will see three images: one target item on top, and two choices beneath the target item." +
-        "</p><p>For each trial, <strong>please select the item that is most like the target item.</strong><br>"+
+      stimulus: 
+            "<p>Good job! You have finished the practice round.</p>" +
+            "<p>The rest of the task will be similar. Categorize each color using the <strong>left</strong> or <strong>right</strong> arrow keys.<br>"+ 
+            "There will be four total blocks. In the first half of each block, you will be told if you make a correct or incorrect<br>" +
+            "response so you can learn the categories over time.</p>"+
+            "<p>In the second half of each block, you will categorize more colors, and you will not be given feedback.<br>" +
+            "If you are unsure which category a color belongs to, make your best guess.</p>" +
+            "<p>Press <strong>Continue</strong> when you are ready to begin the task.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 500,
+    };
+
+
+
+
+    // ---- Instructions (parameterized by block number) ----
+    function makeCatInstructions(blockNum) {
+        return {
+            type: jsPsychHtmlButtonResponse,
+            stimulus:
+                "<p><strong>Categorization Task — Block " + blockNum + "</strong></p>" +
+                "<p>In the next block, you will see new colors. You will be told if your response is correct or incorrect.<br>" +
+                "Your task is to categorize colors by pressing the <strong>left</strong> or <strong>right</strong> arrow keys.</p>" +
+                "<p>Press <strong>Continue</strong> when you are ready to begin the next block.</p>",
+            choices: ["Continue"],
+            post_trial_gap: 500
+        };
+    }
+
+    // ---- Feedback-part trial ----
+    var cat_trial_feedback = {
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('catStims'),
+        stimulus_height: 150,
+        stimulus_width: 150,
+        choices: ['ArrowLeft', 'ArrowRight'],
+        //prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
+        on_finish: function(data) {
+            var correct_resp = jsPsych.timelineVariable('correct_response', true);
+            data.correct_response = correct_resp;
+            data.color_group      = jsPsych.timelineVariable('color_group', true);
+            data.block            = jsPsych.timelineVariable('block', true);
+            data.correct          = (data.response === correct_resp);
+            data.task             = 'categorization_feedback';
+        }
+    };
+
+    var cat_feedback_wrong = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: "<p style='color:red;font-size:1.4em;'><strong>Incorrect.</strong></p>" +
+                  "<p>Try to learn which category each color belongs to.<br>Press <strong>y</strong> to continue.</p>"+
+                  "<p>Press the <strong>left</strong> or <strong>right</strong> arrow keys to categorize each color.</p>",
+        choices: ['y']
+    };
+
+    var cat_feedback_corr = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: "<p style='color:green;font-size:1.4em;'><strong>Correct!</strong></p>",
+        choices: ["NO_KEYS"],
+        trial_duration: 1000
+    };
+
+    var cat_feedback_node_wrong = {
+        timeline: [cat_feedback_wrong],
+        conditional_function: function() {
+            var last = jsPsych.data.get().last(1).values()[0];
+            return (last.task === 'categorization_feedback' && last.correct === false);
+        }
+    };
+
+    var cat_feedback_node_corr = {
+        timeline: [cat_feedback_corr],
+        conditional_function: function() {
+            var last = jsPsych.data.get().last(1).values()[0];
+            return (last.task === 'categorization_feedback' && last.correct === true);
+        }
+    };
+
+    // ---- Break between the feedback and no-feedback parts within a block ----
+    var cat_break_within = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus:
+            "<p>Great work! Feel free to take a short break.</p>" +
+            "<p>Next, you will categorize some more colors using the same left and right arrow keys.<br>" +
+            "This time, you will not be told if your answer is correct or not. If you are unsure, make your best guess.</p>" +
+            "<p>Click <strong>Continue</strong> when you are ready.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 500
+    };
+
+    // ---- Break between blocks ----
+    var cat_break_between = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus:
+            "<p>Block complete! Take a short break.</p>" +
+            "<p>In the next block, you will learn a new set of color categories.</p>" +
+            "<p>Click <strong>Continue</strong> when you are ready.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 500
+    };
+
+    // ---- No-feedback-part trial ----
+    var cat_trial_nofeedback = {
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('catStims'),
+        stimulus_height: 150,
+        stimulus_width: 150,
+        choices: ['ArrowLeft', 'ArrowRight'],
+        //prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
+        on_finish: function(data) {
+            data.color_group = jsPsych.timelineVariable('color_group', true);
+            data.block       = jsPsych.timelineVariable('block', true);
+            data.correct     = null;
+            data.task        = 'categorization_nofeedback';
+        }
+    };
+
+
+  //-----------------------------------------categorization task---------------------------------------
+
+
+
+  async function initExperiment() {
+    const allimg_triplets = categoryStims;
+
+    var preload_category = {
+        type: jsPsychPreload,
+        auto_preload: true,
+        images: categoryStims.concat(practiceCatStims),
+        show_progress_bar: true,
+        message: "Loading experiment files...",
+        error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
+    };
+
+    // Main-block images (img_cat/)
+    function getGroup(num) {
+        return allimg_triplets
+            .filter(name => name.includes('color' + num + '_'));
+    }
+
+    // Practice-block images (img_cat_practice/)
+    function getPracticeGroup(num) {
+        return practiceCatStims
+            .filter(name => name.includes('color' + num + '_'));
+    }
+
+    // ---- Practice block ----
+    // Two color pairs: (color1 vs color4) and (color2 vs color3).
+    // Randomly assign per participant which pair is the feedback part and which is the no-feedback part.
+    var practicePairs = jsPsych.randomization.shuffle([
+        { left: 1, right: 4 },
+        { left: 2, right: 3 }
+    ]);
+    var practiceFbPair   = practicePairs[0];
+    var practiceNofbPair = practicePairs[1];
+
+    var practiceFbStimuli = [];
+    getPracticeGroup(practiceFbPair.left).forEach(function(img_cat) {
+        practiceFbStimuli.push({
+            catStims: img_cat,
+            correct_response: 'arrowleft',
+            color_group: 'color' + practiceFbPair.left,
+            block: 'practice'
+        });
+    });
+    getPracticeGroup(practiceFbPair.right).forEach(function(img_cat) {
+        practiceFbStimuli.push({
+            catStims: img_cat,
+            correct_response: 'arrowright',
+            color_group: 'color' + practiceFbPair.right,
+            block: 'practice'
+        });
+    });
+
+    var practiceNofbStimuli = [];
+    getPracticeGroup(practiceNofbPair.left).forEach(function(img_cat) {
+        practiceNofbStimuli.push({
+            catStims: img_cat,
+            color_group: 'color' + practiceNofbPair.left,
+            block: 'practice'
+        });
+    });
+    getPracticeGroup(practiceNofbPair.right).forEach(function(img_cat) {
+        practiceNofbStimuli.push({
+            catStims: img_cat,
+            color_group: 'color' + practiceNofbPair.right,
+            block: 'practice'
+        });
+    });
+
+    var practice_fb_procedure = {
+        timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
+        timeline_variables: practiceFbStimuli,
+        randomize_order: true
+    };
+
+    var practice_nofb_procedure = {
+        timeline: [fixation, cat_trial_nofeedback],
+        timeline_variables: practiceNofbStimuli,
+        randomize_order: true
+    };
+
+    // Four yoked quadruplets. Within a quadruplet the two yoked color pairs
+    // (outer pair + inner pair) are preserved, but we randomize per participant:
+    //   (a) the presentation order of the four quadruplets (block order), and
+    //   (b) within each quadruplet, which yoked pair is the feedback part
+    //       and which is the no-feedback part.
+    // Left/right arrow-key mapping within a pair is preserved (smaller index -> left,
+    // larger index -> right), so the yoking isn't broken.
+    var quadruplets = [
+        { pairA: [1, 4],   pairB: [2, 3]   },
+        { pairA: [5, 8],   pairB: [6, 7]   },
+        { pairA: [9, 12],  pairB: [10, 11] },
+        { pairA: [13, 16], pairB: [14, 15] }
+    ];
+
+    var shuffledQuads = jsPsych.randomization.shuffle(quadruplets);
+
+    timeline.push(preload_category);
+    timeline.push(practice_fb_procedure);
+    timeline.push(cat_break_within);
+    timeline.push(practice_nofb_procedure);
+    timeline.push(practiceEnd);
+
+    shuffledQuads.forEach(function(quad, idx) {
+        var blockNum = idx + 1;
+
+        // Randomly pick which yoked pair is the feedback pair this participant sees
+        var pairs   = jsPsych.randomization.shuffle([quad.pairA, quad.pairB]);
+        var fbLeft  = pairs[0][0];
+        var fbRight = pairs[0][1];
+        var nofbA   = pairs[1][0];
+        var nofbB   = pairs[1][1];
+
+        var fbStimuli = [];
+        getGroup(fbLeft).forEach(function(img_cat) {
+            fbStimuli.push({
+                catStims: img_cat,
+                correct_response: 'arrowleft',
+                color_group: 'color' + fbLeft,
+                block: blockNum
+            });
+        });
+        getGroup(fbRight).forEach(function(img_cat) {
+            fbStimuli.push({
+                catStims: img_cat,
+                correct_response: 'arrowright',
+                color_group: 'color' + fbRight,
+                block: blockNum
+            });
+        });
+
+        var nofbStimuli = [];
+        getGroup(nofbA).forEach(function(img_cat) {
+            nofbStimuli.push({
+                catStims: img_cat,
+                color_group: 'color' + nofbA,
+                block: blockNum
+            });
+        });
+        getGroup(nofbB).forEach(function(img_cat) {
+            nofbStimuli.push({
+                catStims: img_cat,
+                color_group: 'color' + nofbB,
+                block: blockNum
+            });
+        });
+
+        var feedback_procedure = {
+            timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
+            timeline_variables: fbStimuli,
+            randomize_order: true
+        };
+
+        var nofeedback_procedure = {
+            timeline: [fixation, cat_trial_nofeedback],
+            timeline_variables: nofbStimuli,
+            randomize_order: true
+        };
+
+        timeline.push(makeCatInstructions(blockNum));
+        timeline.push(feedback_procedure);
+        timeline.push(cat_break_within);
+        timeline.push(nofeedback_procedure);
+        if (idx < shuffledQuads.length - 1) {
+            timeline.push(cat_break_between);
+        }
+    });
+}
+
+initExperiment();
+
+
+ //-----------------------------------------TRIPLET TASK------------------------------------------
+    
+    //define testing instructions 
+    var instructions_triplets = {
+      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
+      stimulus: "<p>Good job! You have finished the first task.</p>" +
+       "<p>In each trial of the second task, you will see three images: one target item on top, and two choices beneath the target item.<br>" +
+        "For each trial, <strong>please select the item that is most like the target item.</strong><br>"+
         "If you think the color on the <strong>left</strong> is most similar to the color on top, please press the left arrow key.<br>" +
         "If you think the color on the <strong>right</strong> is most similar to the color on top, please press the right arrow key.<br>" +
         "<p>There may be trials with no obvious answer. In those cases, use your best judgment." +
@@ -270,7 +592,7 @@
 
         }
     };
-   timeline.push(instructions);  
+   timeline.push(instructions_triplets);  
       
   
       
@@ -592,325 +914,7 @@
     timeline.push(quick_break);
     timeline.push(procedure);
 
-  //-----------------------------------------categorization task-----------------------------------------
-
-    // 4 blocks. Each block has two parts:
-    //   Part 1 (feedback):    categorize the "outer" pair of a color quartet (left vs right arrow key)
-    //                         -> participants are told when they are wrong
-    //   Part 2 (no feedback): categorize the "inner" pair of the same quartet
-    //                         -> no correct answer is shown
-    // Quartets: (color1-4), (color5-8), (color9-12), (color13-16)
-    // Example: Block 1 feedback part = color1 vs color4, no-feedback part = color2 vs color3
-
-    /* define category instructions, explain task */
-    var catInstructionsFirst = {
-      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
-      stimulus: 
-            "<p>Good job! In the next part of the experiment, you will do a new task. You will see a color on each trial.<br>" +
-            "Your task is to categorize it by pressing the <strong>left</strong> or <strong>right</strong> arrow key.</p>" +
-            "<p>There is a <strong>correct answer</strong> on each trial.<br>" +
-            "You will be told if you make a correct or incorrect response so you can learn the categories over time.</p>" +
-            "There will first be a short practice round.</p>" +
-            "<p>Press <strong>Continue</strong> when you are ready to begin the practice round.</p>",
-        choices: ["Continue"],
-        post_trial_gap: 500,
-    };
-    timeline.push(catInstructionsFirst);
-
-    
-    var practiceEnd = {
-      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
-      stimulus: 
-            "<p>Good job! You have finished the practice round.</p>" +
-            "<p>The rest of the task will be similar. Categorize each color using the <strong>left</strong> or <strong>right</strong> arrow keys.<br>"+ 
-            "There will be four total blocks. In the first half of each block, you will be told if you make a correct or incorrect<br>" +
-            "response so you can learn the categories over time.</p>"+
-            "<p>In the second half of each block, you will categorize more colors, and you will not be given feedback.<br>" +
-            "If you are unsure which category a color belongs to, make your best guess.</p>" +
-            "<p>Press <strong>Continue</strong> when you are ready to begin the task.</p>",
-        choices: ["Continue"],
-        post_trial_gap: 500,
-    };
-
-
-
-
-    // ---- Instructions (parameterized by block number) ----
-    function makeCatInstructions(blockNum) {
-        return {
-            type: jsPsychHtmlButtonResponse,
-            stimulus:
-                "<p><strong>Categorization Task — Block " + blockNum + "</strong></p>" +
-                "<p>In the next block, you will see new colors. You will be told if your response is correct or incorrect.<br>" +
-                "Your task is to categorize colors by pressing the <strong>left</strong> or <strong>right</strong> arrow keys.</p>" +
-                "<p>Press <strong>Continue</strong> when you are ready to begin the next block.</p>",
-            choices: ["Continue"],
-            post_trial_gap: 500
-        };
-    }
-
-    // ---- Feedback-part trial ----
-    var cat_trial_feedback = {
-        type: jsPsychImageKeyboardResponse,
-        stimulus: jsPsych.timelineVariable('catStims'),
-        stimulus_height: 150,
-        stimulus_width: 150,
-        choices: ['ArrowLeft', 'ArrowRight'],
-        //prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
-        on_finish: function(data) {
-            var correct_resp = jsPsych.timelineVariable('correct_response', true);
-            data.correct_response = correct_resp;
-            data.color_group      = jsPsych.timelineVariable('color_group', true);
-            data.block            = jsPsych.timelineVariable('block', true);
-            data.correct          = (data.response === correct_resp);
-            data.task             = 'categorization_feedback';
-        }
-    };
-
-    var cat_feedback_wrong = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: "<p style='color:red;font-size:1.4em;'><strong>Incorrect.</strong></p>" +
-                  "<p>Try to learn which category each color belongs to.<br>Press <strong>y</strong> to continue.</p>"+
-                  "<p>Press the <strong>left</strong> or <strong>right</strong> arrow keys to categorize each color.</p>",
-        choices: ['y']
-    };
-
-    var cat_feedback_corr = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: "<p style='color:green;font-size:1.4em;'><strong>Correct!</strong></p>",
-        choices: ["NO_KEYS"],
-        trial_duration: 1000
-    };
-
-    var cat_feedback_node_wrong = {
-        timeline: [cat_feedback_wrong],
-        conditional_function: function() {
-            var last = jsPsych.data.get().last(1).values()[0];
-            return (last.task === 'categorization_feedback' && last.correct === false);
-        }
-    };
-
-    var cat_feedback_node_corr = {
-        timeline: [cat_feedback_corr],
-        conditional_function: function() {
-            var last = jsPsych.data.get().last(1).values()[0];
-            return (last.task === 'categorization_feedback' && last.correct === true);
-        }
-    };
-
-    // ---- Break between the feedback and no-feedback parts within a block ----
-    var cat_break_within = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus:
-            "<p>Great work! Feel free to take a short break.</p>" +
-            "<p>Next, you will categorize some more colors using the same left and right arrow keys.<br>" +
-            "This time, you will not be told if your answer is correct or not. If you are unsure, make your best guess.</p>" +
-            "<p>Click <strong>Continue</strong> when you are ready.</p>",
-        choices: ["Continue"],
-        post_trial_gap: 500
-    };
-
-    // ---- Break between blocks ----
-    var cat_break_between = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus:
-            "<p>Block complete! Take a short break.</p>" +
-            "<p>In the next block, you will learn a new set of color categories.</p>" +
-            "<p>Click <strong>Continue</strong> when you are ready.</p>",
-        choices: ["Continue"],
-        post_trial_gap: 500
-    };
-
-    // ---- No-feedback-part trial ----
-    var cat_trial_nofeedback = {
-        type: jsPsychImageKeyboardResponse,
-        stimulus: jsPsych.timelineVariable('catStims'),
-        stimulus_height: 150,
-        stimulus_width: 150,
-        choices: ['ArrowLeft', 'ArrowRight'],
-        //prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
-        on_finish: function(data) {
-            data.color_group = jsPsych.timelineVariable('color_group', true);
-            data.block       = jsPsych.timelineVariable('block', true);
-            data.correct     = null;
-            data.task        = 'categorization_nofeedback';
-        }
-    };
-
-
-  //-----------------------------------------categorization task---------------------------------------
-
-
-
-  async function initExperiment() {
-    const allimg_triplets = categoryStims;
-
-    var preload_category = {
-        type: jsPsychPreload,
-        auto_preload: true,
-        images: categoryStims.concat(practiceCatStims),
-        show_progress_bar: true,
-        message: "Loading experiment files...",
-        error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
-    };
-
-    // Main-block images (img_cat/)
-    function getGroup(num) {
-        return allimg_triplets
-            .filter(name => name.includes('color' + num + '_'));
-    }
-
-    // Practice-block images (img_cat_practice/)
-    function getPracticeGroup(num) {
-        return practiceCatStims
-            .filter(name => name.includes('color' + num + '_'));
-    }
-
-    // ---- Practice block ----
-    // Two color pairs: (color1 vs color4) and (color2 vs color3).
-    // Randomly assign per participant which pair is the feedback part and which is the no-feedback part.
-    var practicePairs = jsPsych.randomization.shuffle([
-        { left: 1, right: 4 },
-        { left: 2, right: 3 }
-    ]);
-    var practiceFbPair   = practicePairs[0];
-    var practiceNofbPair = practicePairs[1];
-
-    var practiceFbStimuli = [];
-    getPracticeGroup(practiceFbPair.left).forEach(function(img_cat) {
-        practiceFbStimuli.push({
-            catStims: img_cat,
-            correct_response: 'arrowleft',
-            color_group: 'color' + practiceFbPair.left,
-            block: 'practice'
-        });
-    });
-    getPracticeGroup(practiceFbPair.right).forEach(function(img_cat) {
-        practiceFbStimuli.push({
-            catStims: img_cat,
-            correct_response: 'arrowright',
-            color_group: 'color' + practiceFbPair.right,
-            block: 'practice'
-        });
-    });
-
-    var practiceNofbStimuli = [];
-    getPracticeGroup(practiceNofbPair.left).forEach(function(img_cat) {
-        practiceNofbStimuli.push({
-            catStims: img_cat,
-            color_group: 'color' + practiceNofbPair.left,
-            block: 'practice'
-        });
-    });
-    getPracticeGroup(practiceNofbPair.right).forEach(function(img_cat) {
-        practiceNofbStimuli.push({
-            catStims: img_cat,
-            color_group: 'color' + practiceNofbPair.right,
-            block: 'practice'
-        });
-    });
-
-    var practice_fb_procedure = {
-        timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
-        timeline_variables: practiceFbStimuli,
-        randomize_order: true
-    };
-
-    var practice_nofb_procedure = {
-        timeline: [fixation, cat_trial_nofeedback],
-        timeline_variables: practiceNofbStimuli,
-        randomize_order: true
-    };
-
-    // Four yoked quadruplets. Within a quadruplet the two yoked color pairs
-    // (outer pair + inner pair) are preserved, but we randomize per participant:
-    //   (a) the presentation order of the four quadruplets (block order), and
-    //   (b) within each quadruplet, which yoked pair is the feedback part
-    //       and which is the no-feedback part.
-    // Left/right arrow-key mapping within a pair is preserved (smaller index -> left,
-    // larger index -> right), so the yoking isn't broken.
-    var quadruplets = [
-        { pairA: [1, 4],   pairB: [2, 3]   },
-        { pairA: [5, 8],   pairB: [6, 7]   },
-        { pairA: [9, 12],  pairB: [10, 11] },
-        { pairA: [13, 16], pairB: [14, 15] }
-    ];
-
-    var shuffledQuads = jsPsych.randomization.shuffle(quadruplets);
-
-    timeline.push(preload_category);
-    timeline.push(practice_fb_procedure);
-    timeline.push(cat_break_within);
-    timeline.push(practice_nofb_procedure);
-    timeline.push(practiceEnd);
-
-    shuffledQuads.forEach(function(quad, idx) {
-        var blockNum = idx + 1;
-
-        // Randomly pick which yoked pair is the feedback pair this participant sees
-        var pairs   = jsPsych.randomization.shuffle([quad.pairA, quad.pairB]);
-        var fbLeft  = pairs[0][0];
-        var fbRight = pairs[0][1];
-        var nofbA   = pairs[1][0];
-        var nofbB   = pairs[1][1];
-
-        var fbStimuli = [];
-        getGroup(fbLeft).forEach(function(img_cat) {
-            fbStimuli.push({
-                catStims: img_cat,
-                correct_response: 'arrowleft',
-                color_group: 'color' + fbLeft,
-                block: blockNum
-            });
-        });
-        getGroup(fbRight).forEach(function(img_cat) {
-            fbStimuli.push({
-                catStims: img_cat,
-                correct_response: 'arrowright',
-                color_group: 'color' + fbRight,
-                block: blockNum
-            });
-        });
-
-        var nofbStimuli = [];
-        getGroup(nofbA).forEach(function(img_cat) {
-            nofbStimuli.push({
-                catStims: img_cat,
-                color_group: 'color' + nofbA,
-                block: blockNum
-            });
-        });
-        getGroup(nofbB).forEach(function(img_cat) {
-            nofbStimuli.push({
-                catStims: img_cat,
-                color_group: 'color' + nofbB,
-                block: blockNum
-            });
-        });
-
-        var feedback_procedure = {
-            timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
-            timeline_variables: fbStimuli,
-            randomize_order: true
-        };
-
-        var nofeedback_procedure = {
-            timeline: [fixation, cat_trial_nofeedback],
-            timeline_variables: nofbStimuli,
-            randomize_order: true
-        };
-
-        timeline.push(makeCatInstructions(blockNum));
-        timeline.push(feedback_procedure);
-        timeline.push(cat_break_within);
-        timeline.push(nofeedback_procedure);
-        if (idx < shuffledQuads.length - 1) {
-            timeline.push(cat_break_between);
-        }
-    });
-}
-
-initExperiment();
+ 
 
   //-----------------------------------------color vision check-----------------------------------------
 
@@ -1020,13 +1024,14 @@ initExperiment();
             options: ["Yes", "No"],
             horizontal: false,
             required: true, 
-            name: 'colorBlind'},
-
+            name: 'colorBlind'}
+            /*
             {prompt: "What device did you use to complete this experiment?",
             options: ["Computer", "Tablet", "Phone", "Other"],
             horizontal: false,
             required: true, 
             name: 'device'}
+            */
         ],
         preamble: "",
         button_label: "Done",
@@ -1079,9 +1084,9 @@ var demographics = {
     var color_experience = {
     type: jsPsychSurveyHtmlForm,
     preamble: "<p>We would like to know whether you have experience working with colors or learning about them.<br>" +
-        "By experience, we mean taking classes where you have learned about color (like art, design, or Perception &amp; Sensation). " +
-        "These classes can have been taken in high school, college, or through art clubs. " +
-        "Experience can also mean being an artist, designer, photographer, or working in a color-related field, " +
+        "By experience, we mean taking classes where you have learned about color (like art, design, or Perception &amp; Sensation).<br> " +
+        "These classes can have been taken in high school, college, or through art clubs.<br> " +
+        "Experience can also mean being an artist, designer, photographer, or working in a color-related field,<br> " +
         "even if you have not taken formal classes.</p>",
     html:
         "<h3 style='margin-top:1em;'>Classes and Experience</h3>" +
@@ -1105,13 +1110,13 @@ var demographics = {
         "<label><input type='radio' name='psych' value='No'> No</label> " +
         "<label><input type='radio' name='psych' value='Currently enrolled'> Currently enrolled</label></p>" +
 
-        "<p>Have you previously participated in any similar studies about colors (e.g., color categorization or triplet/odd-one-out tasks)?<br>" +
+        "<p>Have you participated in any similar studies about colors (e.g., color categorization or triplet/odd-one-out tasks)?<br>" +
         "<label><input type='radio' name='other_studies' value='No' required> No</label> " +
         "<label><input type='radio' name='other_studies' value='Yes'> Yes</label> " +
         "<label><input type='radio' name='other_studies' value=\"I'm not sure\"> I'm not sure</label></p>"
     };
     timeline.push(color_experience);
-
+/*
     var monitor_settings = {
       type: jsPsychSurveyText,     // CHANGE THIS (written survey questions)
       questions: [{prompt: "Please enter the make and model of your computer:", rows: 1, columns: 30, name: "monitor", required: true}, 
@@ -1121,7 +1126,8 @@ var demographics = {
     };
     timeline.push(monitor_settings);
       
-      
+   */
+
    var goodbye = {
       type: jsPsychHtmlButtonResponse,
       stimulus: function(){
@@ -1144,8 +1150,6 @@ var demographics = {
       
       choices: "NO_KEYS"
    };
-  
-
   
 
     timeline.push(save_data);
