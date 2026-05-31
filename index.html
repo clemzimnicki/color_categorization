@@ -22,6 +22,7 @@
     <script src ="checkTrials.json"></script>
     <script src ="categoryStimuli.js"></script>
     <script src ="practiceCatStimuli.js"></script>
+    <script src ="unambiguousCatStimuli.js"></script>
     <script src ="validationPicked.json"></script>
     <script src ="validationRandom.json"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
@@ -384,7 +385,7 @@
     var preload_category = {
         type: jsPsychPreload,
         auto_preload: true,
-        images: categoryStims.concat(practiceCatStims),
+        images: categoryStims.concat(practiceCatStims).concat(unambiguousCatStims),
         show_progress_bar: true,
         message: "Loading experiment files...",
         error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
@@ -399,6 +400,12 @@
     // Practice-block images (img_cat_practice/)
     function getPracticeGroup(num) {
         return practiceCatStims
+            .filter(name => name.includes('color' + num + '_'));
+    }
+
+    // Unambiguous-block images (img_cat_unambiguous/)
+    function getUnambiguousGroup(num) {
+        return unambiguousCatStims
             .filter(name => name.includes('color' + num + '_'));
     }
 
@@ -540,7 +547,78 @@
         timeline.push(feedback_procedure);
         timeline.push(cat_break_within);
         timeline.push(nofeedback_procedure);
-        if (idx < shuffledQuads.length - 1) {
+        timeline.push(cat_break_between);
+    });
+
+    // ---- Unambiguous blocks (always at the end, fixed order) ----
+    // Block 5: (color1 vs color4) and (color2 vs color3)
+    // Block 6: (color5 vs color8) and (color6 vs color7)
+    var unambiguousQuads = [
+        { pairA: [1, 4], pairB: [2, 3] },
+        { pairA: [5, 8], pairB: [6, 7] }
+    ];
+
+    unambiguousQuads.forEach(function(quad, idx) {
+        var blockNum = shuffledQuads.length + idx + 1;
+
+        // Randomly pick which yoked pair is the feedback pair this participant sees
+        var pairs   = jsPsych.randomization.shuffle([quad.pairA, quad.pairB]);
+        var fbLeft  = pairs[0][0];
+        var fbRight = pairs[0][1];
+        var nofbA   = pairs[1][0];
+        var nofbB   = pairs[1][1];
+
+        var fbStimuli = [];
+        getUnambiguousGroup(fbLeft).forEach(function(img_cat) {
+            fbStimuli.push({
+                catStims: img_cat,
+                correct_response: 'arrowleft',
+                color_group: 'color' + fbLeft,
+                block: blockNum
+            });
+        });
+        getUnambiguousGroup(fbRight).forEach(function(img_cat) {
+            fbStimuli.push({
+                catStims: img_cat,
+                correct_response: 'arrowright',
+                color_group: 'color' + fbRight,
+                block: blockNum
+            });
+        });
+
+        var nofbStimuli = [];
+        getUnambiguousGroup(nofbA).forEach(function(img_cat) {
+            nofbStimuli.push({
+                catStims: img_cat,
+                color_group: 'color' + nofbA,
+                block: blockNum
+            });
+        });
+        getUnambiguousGroup(nofbB).forEach(function(img_cat) {
+            nofbStimuli.push({
+                catStims: img_cat,
+                color_group: 'color' + nofbB,
+                block: blockNum
+            });
+        });
+
+        var feedback_procedure = {
+            timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
+            timeline_variables: fbStimuli,
+            randomize_order: true
+        };
+
+        var nofeedback_procedure = {
+            timeline: [fixation, cat_trial_nofeedback],
+            timeline_variables: nofbStimuli,
+            randomize_order: true
+        };
+
+        timeline.push(makeCatInstructions(blockNum));
+        timeline.push(feedback_procedure);
+        timeline.push(cat_break_within);
+        timeline.push(nofeedback_procedure);
+        if (idx < unambiguousQuads.length - 1) {
             timeline.push(cat_break_between);
         }
     });
