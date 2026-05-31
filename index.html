@@ -128,20 +128,6 @@
         return temp_array;
     }
       
-      /*
-    //check if mac, and if not, redirect
-        var isMac = navigator.platform.indexOf('Mac') !== -1;
-       
-        // If the user is not on a Mac, we can end the experiment right after the warning
-        if (!isMac) {
-            var endExperiment = {
-                type: jsPsychHtmlKeyboardResponse,
-                stimulus: "Thank you for your time, but unfortunately this experiment is only available on Mac computers. You may now exit this window.",
-                choices: "NO_KEYS"
-            };
-            timeline.push(endExperiment);
-        }
-*/
 
     var intro = {
     type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
@@ -230,35 +216,17 @@
       
     var lasttrialdata_rt = 0;
 
-/*    var displayAdjust = {
-        type: jsPsychSurveyHtmlForm,
-        preamble:
-            "<p>Before beginning the experiment, please ensure that you are using a computer to complete the experiment, NOT a phone or tablet, <br>" +
-            "and that you are in a dark room. Next, please take a look at the set of five squares below. Some squares are the same color as the background, <br>"+
-            "while others are slightly darker or lighter. The squares that differ from the background will become visible when the screen brightness is at maximum. <br>"+
-            "Please adjust your screen brightness until you can see the squares, and report how many of the five squares differ from the background.<br>" +
-            "Brightness can be adjusted by using the F1 and F2 keys.</p>"+
-            
-                '<div style= "height:100px;width:100px;border:00px solid powderblue;display: inline-block; background:rgb(89,89,89)"></div>'+
-                '<div style= "height:100px;width:100px;border:00px solid powderblue;display: inline-block; background:rgb(90,90,90)"></div>'+
-                '<div style= "height:100px;width:100px;border:00px solid powderblue;display: inline-block; background:rgb(89,89,89)"></div>'+
-                '<div style= "height:100px;width:100px;border:00px solid powderblue;display: inline-block; background:rgb(88,88,88)"></div>'+
-                '<div style= "height:100px;width:100px;border:00px solid powderblue;display: inline-block; background:rgb(90,90,90)"></div>'+
-
-            "<p>Click 'Continue' when you have adjusted your settings.</p>",
-        html: '<p> There are <input name="first" type="text" /> squares.</p>'
-    };
-    timeline.push(displayAdjust)
-*/
           
  //-----------------------------------------categorization task-----------------------------------------
 
-    // 4 blocks. Each block has two parts:
+    // 7 blocks. Each block has two parts:
     //   Part 1 (feedback):    categorize the "outer" pair of a color quartet (left vs right arrow key)
     //                         -> participants are told when they are wrong
     //   Part 2 (no feedback): categorize the "inner" pair of the same quartet
     //                         -> no correct answer is shown
-    // Quartets: (color1-4), (color5-8), (color9-12), (color13-16)
+    // Practice quartets first
+    // Then test quartets: (color1-4), (color5-8), (color9-12), (color13-16)
+    // Finally, unambiguous quartets: color17-20, color21-24
     // Example: Block 1 feedback part = color1 vs color4, no-feedback part = color2 vs color3
 
     var fixation = {
@@ -273,10 +241,12 @@
     var catInstructionsFirst = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
       stimulus: 
-            "<p>In the first part of the experiment, you will do a new task. You will see a color on each trial.<br>" +
+            "<p>In the first part of the experiment, you will do a categorization task. You will see a color on each trial.<br>" +
             "Your task is to categorize it by pressing the <strong>left</strong> or <strong>right</strong> arrow key.</p>" +
-            "<p>There is a <strong>correct answer</strong> on each trial.<br>" +
-            "You will be told if you make a correct or incorrect response so you can learn the categories over time.</p>" +
+            "You will see seven sets of trials. In the first half of each set, you will be told if you make a correct or<br>" +
+            "incorrect response so you can learn the categories over time. In the second half of each set, you will categorize"+
+            "more colors, and you will not be given feedback.</p>" +
+            "<p>If you are unsure which category a color belongs to, make your best guess.<br>" +
             "There will first be a short practice round.</p>" +
             "<p>Press <strong>Continue</strong> when you are ready to begin the practice round.</p>",
         choices: ["Continue"],
@@ -289,11 +259,10 @@
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
       stimulus: 
             "<p>Good job! You have finished the practice round.</p>" +
-            "<p>The rest of the task will be similar. Categorize each color using the <strong>left</strong> or <strong>right</strong> arrow keys.<br>"+ 
-            "There will be four total blocks. In the first half of each block, you will be told if you make a correct or incorrect<br>" +
-            "response so you can learn the categories over time.</p>"+
-            "<p>In the second half of each block, you will categorize more colors, and you will not be given feedback.<br>" +
-            "If you are unsure which category a color belongs to, make your best guess.</p>" +
+            "<p>The rest of the task will be similar. Categorize each color using the <strong>left</strong> or <strong>right</strong> arrow keys.</p>"+ 
+            "<p>In the first half of each set, you will be told if you make a correct or incorrect response so you can learn the categories over time.<br>" +
+            "In the second half of each set, you will categorize more colors, and you will not be given feedback.</p>"+
+            "<p>If you are unsure which category a color belongs to, make your best guess.</p>" +
             "<p>Press <strong>Continue</strong> when you are ready to begin the task.</p>",
         choices: ["Continue"],
         post_trial_gap: 500,
@@ -308,7 +277,7 @@
             type: jsPsychHtmlButtonResponse,
             stimulus:
                 "<p><strong>Categorization Task — Block " + blockNum + "</strong></p>" +
-                "<p>In the next block, you will see new colors. You will be told if your response is correct or incorrect.<br>" +
+                "<p>Next, you will see a new set of colors. You will be told if your response is correct or incorrect.<br>" +
                 "Your task is to categorize colors by pressing the <strong>left</strong> or <strong>right</strong> arrow keys.</p>" +
                 "<p>Press <strong>Continue</strong> when you are ready to begin the next block.</p>",
             choices: ["Continue"],
@@ -369,9 +338,9 @@
     var cat_break_within = {
         type: jsPsychHtmlButtonResponse,
         stimulus:
-            "<p>Great work! Feel free to take a short break.</p>" +
-            "<p>Next, you will categorize some more colors using the same left and right arrow keys.<br>" +
-            "This time, you will not be told if your answer is correct or not. If you are unsure, make your best guess.</p>" +
+            "<p>Great work!</p>" +
+            "<p>In the second half of this set, you will categorize some more colors using the same left<br>" +
+            "and right arrow keys, and you will not be told if your answer is correct or not.</p>" +
             "<p>Click <strong>Continue</strong> when you are ready.</p>",
         choices: ["Continue"],
         post_trial_gap: 500
@@ -381,8 +350,8 @@
     var cat_break_between = {
         type: jsPsychHtmlButtonResponse,
         stimulus:
-            "<p>Block complete! Take a short break.</p>" +
-            "<p>In the next block, you will learn a new set of color categories.</p>" +
+            "<p>Set complete! Feel free to take a short break.</p>" +
+            "<p>In the next set, you will learn a new set of color categories.</p>" +
             "<p>Click <strong>Continue</strong> when you are ready.</p>",
         choices: ["Continue"],
         post_trial_gap: 500
@@ -1117,17 +1086,6 @@ var demographics = {
         "<label><input type='radio' name='other_studies' value=\"I'm not sure\"> I'm not sure</label></p>"
     };
     timeline.push(color_experience);
-/*
-    var monitor_settings = {
-      type: jsPsychSurveyText,     // CHANGE THIS (written survey questions)
-      questions: [{prompt: "Please enter the make and model of your computer:", rows: 1, columns: 30, name: "monitor", required: true}, 
-                  {prompt: "If you have an external monitor that is different from the make/model of your computer, please enter the monitor model here. Otherwise, enter N/A.", rows: 1, columns: 30, name: "monitor2"},
-                  {prompt: "Please enter the color profile of your computer. On Mac, this can be found under Settings > Displays.", rows : 1, columns: 30, name: "color_profile"}
-                 ]
-    };
-    timeline.push(monitor_settings);
-      
-   */
 
    var goodbye = {
       type: jsPsychHtmlButtonResponse,
