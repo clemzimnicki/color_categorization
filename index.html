@@ -550,13 +550,13 @@
         timeline.push(cat_break_between);
     });
 
-    // ---- Unambiguous blocks (always at the end, fixed order) ----
-    // Block 5: (color1 vs color4) and (color2 vs color3)
-    // Block 6: (color5 vs color8) and (color6 vs color7)
-    var unambiguousQuads = [
+    // ---- Unambiguous blocks (always at the end, random order between the two) ----
+    // One quadruplet: (color1 vs color4) and (color2 vs color3)
+    // Other quadruplet: (color5 vs color8) and (color6 vs color7)
+    var unambiguousQuads = jsPsych.randomization.shuffle([
         { pairA: [1, 4], pairB: [2, 3] },
         { pairA: [5, 8], pairB: [6, 7] }
-    ];
+    ]);
 
     unambiguousQuads.forEach(function(quad, idx) {
         var blockNum = shuffledQuads.length + idx + 1;
