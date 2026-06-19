@@ -21,10 +21,8 @@
     <script src ="colorNames.json"></script>
     <script src ="checkTrials.json"></script>
     <script src ="categoryStimuli1.js"></script>
-    <script src ="categoryStimuli2.js"></script>
     <script src ="practiceCatStimuli.js"></script>
     <script src ="unambiguousCatStimuli1.js"></script>
-    <script src ="unambiguousCatStimuli2.js"></script>
     <script src ="validationPicked.json"></script>
     <script src ="validationRandom.json"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
@@ -58,39 +56,6 @@
     var secret_code = jsPsych.data.urlVariables().id;
 
 
-    // ============================================================
-    //  MONITOR SELECTION
-    //  The monitor number MUST be known before the timeline is built,
-    //  because it determines which stimulus set and which calibrated
-    //  color table are used below. We therefore ask the experimenter
-    //  up front (synchronously) rather than as a timeline trial.
-    // ============================================================
-    var monitorNum = null;
-    while (monitorNum !== 1 && monitorNum !== 2) {
-        var monitorEntry = window.prompt("Experimenter: enter monitor number (1 or 2):", "");
-        if (monitorEntry === null) {  // experimenter hit Cancel
-            document.body.innerHTML =
-                "<p style='color:#fff;font-family:sans-serif;'>Setup cancelled — no monitor " +
-                "number entered. Please reload the page to start.</p>";
-            throw new Error("Monitor number not provided.");
-        }
-        monitorNum = parseInt(monitorEntry, 10);
-        if (monitorNum !== 1 && monitorNum !== 2) {
-            window.alert("Please enter either 1 or 2.");
-        }
-    }
-    // record the monitor number on every row of the saved data
-    jsPsych.data.addProperties({ monitor: monitorNum });
-
-    // pick the monitor-specific stimulus sets.
-    // categoryStimuli1.js / unambiguousCatStimuli1.js define categoryStims / unambiguousCatStims (monitor 1).
-    // categoryStimuli2.js / unambiguousCatStimuli2.js define categoryStims2 / unambiguousCatStims2 (monitor 2).
-    var categoryStims       = (monitorNum === 2) ? categoryStims2       : categoryStims;
-    var unambiguousCatStims = (monitorNum === 2) ? unambiguousCatStims2 : unambiguousCatStims;
-
-
-    var filename = "category_" + monitorNum + "_" + secret_code + ".csv"; // CHANGE THIS (file name)
-
     // this is to save to OSF using DataPipe
     //if want to save data more often, copy this and change the name, and save halfway through
       const save_data = { 
@@ -103,6 +68,21 @@
 
           /* create timeline */
     var timeline = [];
+
+    var monitorNum = null;
+
+    var enterMonitorNum = {
+      type: jsPsychSurveyText,     // CHANGE THIS (written survey questions)
+      questions: [{prompt: "Experimenter, please enter monitor number.", rows: 1, columns: 6, name: "monitorNum", required: true, data: {trial_id: "monitor"}},
+                 ],
+      on_finish: function (data) {
+          console.log(data.response.monitorNum);
+      }
+    };
+    timeline.push(enterMonitorNum);
+    
+      
+    var filename = "category_" + monitorNum + "_" + secret_code + ".csv"; // CHANGE THIS (file name)
 
     // preload stimuli
     var preload = {
@@ -333,7 +313,7 @@
             data.correct_response = correct_resp;
             data.color_group      = jsPsych.timelineVariable('color_group', true);
             data.block            = jsPsych.timelineVariable('block', true);
-            data.correct          = ((data.response || '').toLowerCase() === correct_resp);
+            data.correct          = (data.response === correct_resp);
             data.task             = 'categorization_feedback';
         }
     };
@@ -694,7 +674,7 @@ initExperiment();
     //  6-digit hex; we map original -> adjusted here. 20 of 58 change;
     //  the rest map to themselves.
     // ============================================================
-    var ADJUSTED_COLORS_1 = {
+    var ADJUSTED_COLORS = {
         "4DC7E8": "4CC3E4",
         "1C3D61": "1C3D61",
         "5E78A1": "5E78A1",
@@ -754,21 +734,6 @@ initExperiment();
         "D5B811": "D0B410",
         "FBA714": "F8A514"
     };
-
-    // ------------------------------------------------------------
-    //  MONITOR 2 calibrated color table.
-    //  TODO: REPLACE the placeholder below with the monitor-2
-    //  calibration values (original 6-digit hex -> adjusted hex),
-    //  in the same format as ADJUSTED_COLORS_1 above.
-    //  As written, this is an IDENTITY map (every color maps to
-    //  itself, i.e. NO calibration applied) so the experiment still
-    //  runs on monitor 2 before you have the real values.
-    // ------------------------------------------------------------
-    var ADJUSTED_COLORS_2 = {};
-    Object.keys(ADJUSTED_COLORS_1).forEach(function (h) { ADJUSTED_COLORS_2[h] = h; });
-
-    // pick the calibrated color table for this monitor
-    var ADJUSTED_COLORS = (monitorNum === 2) ? ADJUSTED_COLORS_2 : ADJUSTED_COLORS_1;
 
     // Pull the trailing 6-digit hex from an identifier. Works for
     // "A3C55B", "A3C55B.png", or "img/color1_center_A3C55B.png".
@@ -835,17 +800,15 @@ initExperiment();
             // }
             //shuffle(texture_arr);
             //data.choices = arr_pair;
-            // Determine which image was selected based on key press.
-            // jsPsych stores keyboard responses in lowercase by default, so normalize before comparing.
-            var resp = (data.response || '').toLowerCase();
-            if (resp === 'arrowleft') {
+            // Determine which image was selected based on key press
+            if (data.response == 'ArrowLeft') {
                 console.log("ArrowLeft selected.");
                 data.selected_image = arr_pair[0];
                 data.selected_index = 0;  // ArrowLeft corresponds to the first choice
-            } else if (resp === 'arrowright') {
+            } else if (data.response == 'ArrowRight') {
                 console.log("ArrowRight selected.");
                 data.selected_image = arr_pair[1];
-                data.selected_index = 1;  // ArrowRight corresponds to the second choice
+                data.selected_index = 1;  // ArrowLeft corresponds to the first choice
             }
 
             // Get the previous trial's data and compute the average response time
@@ -888,17 +851,15 @@ initExperiment();
                 console.error("arr_pair is undefined. Data may not be set correctly.");
                 return;
             }
-            // Determine which image was selected based on the key press.
-            // jsPsych stores keyboard responses in lowercase by default, so normalize before comparing.
-            var resp = (data.response || '').toLowerCase();
-            if (resp === 'arrowleft') {
+            // Determine which image was selected based on the key press
+            if (data.response == 'ArrowLeft') {
                 console.log("ArrowLeft selected.");
                 data.selected_image = arr_pair[0];
                 data.selected_index = 0;  // ArrowLeft corresponds to the first choice
-            } else if (resp === 'arrowright') {
+            } else if (data.response == 'ArrowRight') {
                 console.log("ArrowRight selected.");
                 data.selected_image = arr_pair[1];
-                data.selected_index = 1;  // ArrowRight corresponds to the second choice
+                data.selected_index = 1;  // ArrowLeft corresponds to the first choice
             }
 
             // Save the choices to the data
