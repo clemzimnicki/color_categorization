@@ -663,6 +663,17 @@ initExperiment();
 
  //-----------------------------------------TRIPLET TASK------------------------------------------
  
+
+ //define testing instructions 
+ var instructions_triplets_pre = {
+      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
+      stimulus: "<p>Good job! You have finished the first task.</p>" +
+       "<p>Please call in the experimenter.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 2000,
+    };
+   timeline.push(instructions_triplets_pre);  
+      
     //define testing instructions 
     var instructions_triplets = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
