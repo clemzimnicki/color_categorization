@@ -47,7 +47,7 @@
 
 
     //set bg color to medium gray
-    document.body.style.backgroundColor = "rgb(95,95,95)" //(D65 illuminant gray)
+    document.body.style.backgroundColor = "rgb(89,89,89)" //(D65 illuminant gray)
 
     var jsPsych = initJsPsych();
 
@@ -238,7 +238,7 @@
     };
     timeline.push(fixation);
 
-    // define category instructions, explain task 
+    /* define category instructions, explain task */
     var catInstructionsFirst = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
       stimulus: 
@@ -628,7 +628,7 @@ initExperiment();
 
 
  //-----------------------------------------TRIPLET TASK------------------------------------------
- /*   
+    
     //define testing instructions 
     var instructions_triplets = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
@@ -652,107 +652,12 @@ initExperiment();
       
 
     
-    // ============================================================
-    //  TRIPLET TASK: inline color rendering (no PNGs).
-    //  Colors are the UW58 set with the monitor-near-door calibration
-    //  applied (Y adjustments). Stimulus identifiers (colorHex entries
-    //  and the validation/check head/choice fields) carry the original
-    //  6-digit hex; we map original -> adjusted here. 20 of 58 change;
-    //  the rest map to themselves.
-    // ============================================================
-    var ADJUSTED_COLORS = {
-        "4DC7E8": "4CC3E4",
-        "1C3D61": "1C3D61",
-        "5E78A1": "5E78A1",
-        "A0BAE6": "9CB5E0",
-        "512D5F": "512D5F",
-        "90689F": "90689F",
-        "D5A9E4": "CFA5DF",
-        "72005E": "72005E",
-        "B8509E": "B8509E",
-        "DB1F9D": "DB1F9D",
-        "077ACC": "077ACC",
-        "2E3086": "2E3086",
-        "746BCA": "746BCA",
-        "600B84": "600B84",
-        "A553C8": "A553C8",
-        "CD26C7": "CD26C7",
-        "2F6EF6": "2F6EF6",
-        "3518AD": "3518AD",
-        "8558F4": "8558F4",
-        "B62EF2": "B62EF2",
-        "3B8378": "3B8378",
-        "7EC6BA": "7CC2B6",
-        "000000": "000000",
-        "3B3B3B": "3B3B3B",
-        "777777": "7A7A7A",
-        "B9B9B9": "B1B1B1",
-        "FFFFFF": "FDFDFD",
-        "5E2B3A": "5E2B3A",
-        "A06776": "A06776",
-        "E6A8B7": "DFA2B1",
-        "C34F74": "C34F74",
-        "E31B73": "E31B73",
-        "184415": "184415",
-        "55824D": "55824D",
-        "96C58C": "92C088",
-        "4BCF8E": "49CA8A",
-        "443B14": "443B14",
-        "83764C": "83764C",
-        "C7B88B": "C2B287",
-        "632B14": "632B14",
-        "A8664B": "A8664B",
-        "F1A78A": "EBA386",
-        "C94E4B": "C94E4B",
-        "E81B4B": "E81B4B",
-        "608218": "608218",
-        "A3C55B": "9FC059",
-        "0E8A19": "0E8A19",
-        "67CF5C": "64CB5A",
-        "897618": "897618",
-        "D0B85A": "CAB257",
-        "AC6619": "AC6619",
-        "F7A75A": "F3A458",
-        "CC4F1B": "CC4F1B",
-        "EA1D1D": "EA1D1D",
-        "AAC510": "A6C00F",
-        "73CF10": "70CA0F",
-        "D5B811": "D0B410",
-        "FBA714": "F8A514"
-    };
-
-    // Pull the trailing 6-digit hex from an identifier. Works for
-    // "A3C55B", "A3C55B.png", or "img/color1_center_A3C55B.png".
-    function origHexOf(id) {
-        var m = String(id).toUpperCase().match(/[0-9A-F]{6}/g);
-        return m ? m[m.length - 1] : null;
-    }
-    // Resolve any identifier to its adjusted hex (#RRGGBB).
-    function adjustedHex(id) {
-        var h = origHexOf(id);
-        if (h && ADJUSTED_COLORS.hasOwnProperty(h)) return "#" + ADJUSTED_COLORS[h];
-        if (h) return "#" + h;   // hex not in UW58 set: use as-is
-        return id;               // no hex found: leave unchanged
-    }
-    // One 150x150 color square (the target/top stimulus).
-    function colorSquare(id) {
-        return '<div style="width:150px;height:150px;margin:auto;background-color:' +
-               adjustedHex(id) + ';"></div>';
-    }
-    // The two side-by-side choice squares (replaces the old <img> pair).
-    function colorPair(a, b) {
-        return '<div style="display:flex; justify-content:space-around; margin-top:20px;">' +
-               '<div style="width:150px;height:150px;margin-right:50px;background-color:' + adjustedHex(a) + ';"></div>' +
-               '<div style="width:150px;height:150px;margin-left:50px;background-color:' + adjustedHex(b) + ';"></div>' +
-               '</div>';
-    }
-
     var arr_pair = [];
 
     // define the trials!
     var trial = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: function () { return colorSquare(jsPsych.timelineVariable('item')); },
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('item'),
         choices: ['ArrowLeft', 'ArrowRight'],
         on_start: function (trial) {
             shuffle(stimuli_arr);
@@ -765,7 +670,12 @@ initExperiment();
                 arr_pair = getRandomItems(stimuli_arr);
             }
             console.log("Choices:", arr_pair);
-            trial.prompt = colorPair(arr_pair[0], arr_pair[1]);
+            trial.prompt = `
+        <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+          <img src="${arr_pair[0]}" style="width: 150px; height: 150px; margin-right: 50px;" />
+          <img src="${arr_pair[1]}" style="width: 150px; height: 150px; margin-left: 50px;" />
+        </div>
+      </div>`;
 
             // Store arr_pair in trial data
             trial.data = {
@@ -814,11 +724,11 @@ initExperiment();
 
   // define the validation trials!
   var validation_trial = {
-        type: jsPsychHtmlKeyboardResponse,
+        type: jsPsychImageKeyboardResponse,
         stimulus: function () {
             row = validation_concat.pop();
             head = row.head;
-            return colorSquare(head);
+            return head;
         },
         choices: ['ArrowLeft', 'ArrowRight'],  // Use arrow keys for choices
 
@@ -826,7 +736,11 @@ initExperiment();
             arr_pair = [row.choice_1, row.choice_2];  // Get the two choices
 
             // Set the prompt to display the two choice images with space between them
-            trial.prompt = colorPair(arr_pair[0], arr_pair[1]);
+            trial.prompt = `
+      <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+        <img src="${arr_pair[0]}" style="width: 150px; height: 150px; margin-right: 50px;" />
+        <img src="${arr_pair[1]}" style="width: 150px; height: 150px; margin-left: 50px;" />
+      </div>`;
         },
 
         on_finish: function (data) {
@@ -865,8 +779,8 @@ initExperiment();
 
     // Define the attention checks with keyboard responses
     var check_trial = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: function () { return colorSquare(jsPsych.timelineVariable('head')); },  // Display the head color
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('head'),  // Display the head image
         choices: ['ArrowLeft', 'ArrowRight'],  // Use arrow keys for choices
 
         on_start: function (trial) {
@@ -876,7 +790,11 @@ initExperiment();
             ];
 
             // Set the prompt to display the two choice images with space between them
-            trial.prompt = colorPair(arr_pair[0], arr_pair[1]);
+            trial.prompt = `
+      <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+        <img src="${arr_pair[0]}" style="width: 150px; height: 150px; margin-right: 50px;" />
+        <img src="${arr_pair[1]}" style="width: 150px; height: 150px; margin-left: 50px;" />
+      </div>`;
         },
 
         on_finish: function (data) {
@@ -1044,7 +962,7 @@ initExperiment();
     timeline.push(quick_break);
     timeline.push(procedure);
 
- */
+ 
 
   //-----------------------------------------color vision check-----------------------------------------
 
@@ -1155,7 +1073,13 @@ initExperiment();
             horizontal: false,
             required: true, 
             name: 'colorBlind'}
-
+            /*
+            {prompt: "What device did you use to complete this experiment?",
+            options: ["Computer", "Tablet", "Phone", "Other"],
+            horizontal: false,
+            required: true, 
+            name: 'device'}
+            */
         ],
         preamble: "",
         button_label: "Done",
