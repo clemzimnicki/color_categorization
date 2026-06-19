@@ -1,4 +1,4 @@
-var unambiguousCatStims1 = [
+var unambiguousCatStimuli1 = [
   "img_cat_unambiguous/color1_Ldark_Hmid_998B61.png",
   "img_cat_unambiguous/color1_Ldark_Hneg_AB8366.png",
   "img_cat_unambiguous/color1_Ldark_Hpos_819167.png",

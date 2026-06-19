@@ -1,4 +1,4 @@
-var categoryStims1 = [
+var categoryStimuli1 = [
   "img_cat/color1_Ldark_Hmid_769732.png",
   "img_cat/color1_Ldark_Hneg_A68923.png",
   "img_cat/color1_Ldark_Hpos_2F9F59.png",
