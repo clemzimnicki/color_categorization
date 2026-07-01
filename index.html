@@ -311,9 +311,11 @@ timeline.push(instructions_consent_pre_loop);
       stimulus: 
             "<p>In the first part of the experiment, you will do a categorization task. You will see a color on each trial.<br>" +
             "Your task is to categorize it by pressing the <strong>left</strong> or <strong>right</strong> arrow key.</p>" +
-            "You will see seven sets of trials. In the first half of each set, you will be told if you make a correct or<br>" +
-            "incorrect response so you can learn the categories over time. In the second half of each set, you will categorize<br>"+
-            "more colors, and you will not be given feedback.</p>" +
+            "<p>There are seven sets of trials, each using a different group of colors. Within each set:</p>" +
+            "<ul style='text-align:left; display:inline-block;'>" +
+            "<li>In the <strong>first half</strong>, you will see some of the colors and be told whether each response was correct or incorrect, so you can learn which category each color belongs to.</li>" +
+            "<li>In the <strong>second half</strong>, you will see the <strong>remaining colors from the same set</strong>. These belong to the <strong>same two categories</strong> you just learned, but you will <strong>not</strong> receive feedback. Use what you learned in the first half to categorize them as best you can.</li>" +
+            "</ul>" +
             "<p>If you are unsure which category a color belongs to, make your best guess.<br>" +
             "There will first be a short practice round.</p>" +
             "<p>Press <strong>Continue</strong> when you are ready to begin the practice round.</p>",
@@ -736,6 +738,7 @@ timeline.push(instructions_triplets_pre_loop);
         "For each trial, <strong>please select the item that is most like the target item.</strong><br>"+
         "If you think the color on the <strong>left</strong> is most similar to the color on top, please press the left arrow key.<br>" +
         "If you think the color on the <strong>right</strong> is most similar to the color on top, please press the right arrow key.<br>" +
+        "<p><img src='example_triplet.png' style='max-width:400px;'></p>" +
         "<p>There may be trials with no obvious answer. In those cases, use your best judgment." +
         "<p>This task will take about half an hour: there will be 3 rounds with 280 trials per round.<br>"+
         "You will have the opportunity to take breaks between rounds.</p>"+
