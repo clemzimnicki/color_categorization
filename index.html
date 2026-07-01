@@ -251,7 +251,7 @@
     var lasttrialdata_rt = 0;
 
 
-
+/*
 var consentCodeOK = false;   // gate flag for the loop
 
 var instructions_consent_pre = {
@@ -275,6 +275,7 @@ var instructions_consent_pre = {
   }
 };
 
+
 var instructions_consent_pre_loop = {
   timeline: [instructions_consent_pre],
   loop_function: function () {
@@ -283,7 +284,7 @@ var instructions_consent_pre_loop = {
 };
 timeline.push(instructions_consent_pre_loop); 
 
-          
+      */    
  //-----------------------------------------categorization task-----------------------------------------
 
     // 7 blocks. Each block has two parts:
@@ -701,6 +702,7 @@ initExperiment();
 */
  //-----------------------------------------TRIPLET TASK------------------------------------------
  
+ /*
 
  var tripletCodeOK = false;   // gate flag for the loop
 
@@ -724,6 +726,23 @@ var instructions_triplets_pre = {
     tripletCodeOK = (entered === "color") ? true : null;  // true = pass, null = wrong
   }
 };
+
+*/
+
+var instructions_finish_cat = {
+      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
+      stimulus: 
+       "<p>Good job! You have finished the first task.<br>"+
+        "Feel free to take a short break, then press Continue when you're ready to begin the second task.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 2000,
+        on_finish: function(){
+            shuffle(validation_concat);
+
+        }
+    };
+   timeline.push(instructions_triplets);  
+
 
 var instructions_triplets_pre_loop = {
   timeline: [instructions_triplets_pre],
