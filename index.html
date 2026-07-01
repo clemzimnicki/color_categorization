@@ -250,6 +250,39 @@
       
     var lasttrialdata_rt = 0;
 
+
+
+var consentCodeOK = false;   // gate flag for the loop
+
+var instructions_consent_pre = {
+  type: jsPsychSurveyText,
+  questions: [{
+    prompt: function () {
+      var base = "<p>Thank you for signing the consent form. Please let the experimenter know.</p>" +
+                 "Experimenter, please enter the code:";
+      // show a hint only after a wrong attempt
+      if (consentCodeOK === null) {
+        base = "<p style='color:red;'><strong>That code was not correct — please try again.</strong></p>" + base;
+      }
+      return base;
+    },
+    rows: 1, columns: 6, name: "consentCode", required: true
+  }],
+  post_trial_gap: 1000,
+  on_finish: function (data) {
+    var entered = (data.response.consentCode || "").trim().toLowerCase();
+    consentCodeOK = (entered === "consent") ? true : null;  // true = pass, null = wrong
+  }
+};
+
+var instructions_consent_pre_loop = {
+  timeline: [instructions_consent_pre],
+  loop_function: function () {
+    return consentCodeOK !== true;   // repeat until the code is "color"
+  }
+};
+timeline.push(instructions_consent_pre_loop); 
+
           
  //-----------------------------------------categorization task-----------------------------------------
 
@@ -664,15 +697,36 @@ initExperiment();
  //-----------------------------------------TRIPLET TASK------------------------------------------
  
 
- //define testing instructions 
- var instructions_triplets_pre = {
-      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
-      stimulus: "<p>Good job! You have finished the first task.</p>" +
-       "<p>Please call in the experimenter.</p>",
-        choices: ["Continue"],
-        post_trial_gap: 2000,
-    };
-   timeline.push(instructions_triplets_pre);  
+ var tripletCodeOK = false;   // gate flag for the loop
+
+var instructions_triplets_pre = {
+  type: jsPsychSurveyText,
+  questions: [{
+    prompt: function () {
+      var base = "<p>Good job! You have finished the first task. Please let the experimenter know.</p>" +
+                 "Experimenter, please enter the code:";
+      // show a hint only after a wrong attempt
+      if (tripletCodeOK === null) {
+        base = "<p style='color:red;'><strong>That code was not correct — please try again.</strong></p>" + base;
+      }
+      return base;
+    },
+    rows: 1, columns: 6, name: "tripletCode", required: true
+  }],
+  post_trial_gap: 1000,
+  on_finish: function (data) {
+    var entered = (data.response.tripletCode || "").trim().toLowerCase();
+    tripletCodeOK = (entered === "color") ? true : null;  // true = pass, null = wrong
+  }
+};
+
+var instructions_triplets_pre_loop = {
+  timeline: [instructions_triplets_pre],
+  loop_function: function () {
+    return tripletCodeOK !== true;   // repeat until the code is "color"
+  }
+};
+timeline.push(instructions_triplets_pre_loop); 
       
     //define testing instructions 
     var instructions_triplets = {
