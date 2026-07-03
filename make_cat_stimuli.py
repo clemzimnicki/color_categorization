@@ -22,8 +22,8 @@ import glob
 
 # (image folder, JS variable name, output .js filename)
 JOBS = [
-    ("img_cat",             "categoryStims",      "categoryStimuli.js"),
-    ("img_cat_unambiguous", "unambiguousCatStims", "unambiguousCatStimuli.js"),
+    ("img_cat_2",             "categoryStims2",      "categoryStimuli2.js"),
+    ("img_cat_unambiguous_2", "unambiguousCatStims2", "unambiguousCatStimuli2.js"),
 ]
 
 
