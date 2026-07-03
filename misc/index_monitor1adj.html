@@ -85,23 +85,8 @@
     // pick the monitor-specific stimulus sets.
     // categoryStimuli1.js / unambiguousCatStimuli1.js define categoryStims / unambiguousCatStims (monitor 1).
     // categoryStimuli2.js / unambiguousCatStimuli2.js define categoryStims2 / unambiguousCatStims2 (monitor 2).
-    // Select into NEW variable names (do NOT reuse the loaded file's name on
-    // the left-hand side, to avoid any same-name var-hoisting surprises).
-    var catStimsActive     = (monitorNum === 2) ? categoryStims2       : categoryStims;
-    var unambigStimsActive = (monitorNum === 2) ? unambiguousCatStims2 : unambiguousCatStims;
-
-    // Fail loudly (instead of silently skipping a task) if a set didn't load.
-    if (!Array.isArray(catStimsActive) || !Array.isArray(unambigStimsActive)) {
-        var missing = [];
-        if (!Array.isArray(catStimsActive))
-            missing.push("categoryStimuli" + monitorNum + ".js (expects var categoryStims" + (monitorNum === 2 ? "2" : "") + ")");
-        if (!Array.isArray(unambigStimsActive))
-            missing.push("unambiguousCatStimuli" + monitorNum + ".js (expects var unambiguousCatStims" + (monitorNum === 2 ? "2" : "") + ")");
-        var msg = "Cannot start the experiment: stimulus file(s) not loaded for monitor " +
-                  monitorNum + ": " + missing.join("; ");
-        document.body.innerHTML = "<p style='color:#fff;font-family:sans-serif;'>" + msg + "</p>";
-        throw new Error(msg);
-    }
+    var categoryStims       = (monitorNum === 2) ? categoryStims2       : categoryStims;
+    var unambiguousCatStims = (monitorNum === 2) ? unambiguousCatStims2 : unambiguousCatStims;
 
 
     var filename = "category_" + monitorNum + "_" + secret_code + ".csv"; // CHANGE THIS (file name)
@@ -265,7 +250,41 @@
       
     var lasttrialdata_rt = 0;
 
-          
+
+/*
+var consentCodeOK = false;   // gate flag for the loop
+
+var instructions_consent_pre = {
+  type: jsPsychSurveyText,
+  questions: [{
+    prompt: function () {
+      var base = "<p>Thank you for signing the consent form. Please let the experimenter know.</p>" +
+                 "Experimenter, please enter the code:";
+      // show a hint only after a wrong attempt
+      if (consentCodeOK === null) {
+        base = "<p style='color:red;'><strong>That code was not correct — please try again.</strong></p>" + base;
+      }
+      return base;
+    },
+    rows: 1, columns: 6, name: "consentCode", required: true
+  }],
+  post_trial_gap: 1000,
+  on_finish: function (data) {
+    var entered = (data.response.consentCode || "").trim().toLowerCase();
+    consentCodeOK = (entered === "consent") ? true : null;  // true = pass, null = wrong
+  }
+};
+
+
+var instructions_consent_pre_loop = {
+  timeline: [instructions_consent_pre],
+  loop_function: function () {
+    return consentCodeOK !== true;   // repeat until the code is "color"
+  }
+};
+timeline.push(instructions_consent_pre_loop); 
+
+      */    
  //-----------------------------------------categorization task-----------------------------------------
 
     // 7 blocks. Each block has two parts:
@@ -286,16 +305,21 @@
         trial_duration: 500
     };
     timeline.push(fixation);
-
+/*
     // define category instructions, explain task 
     var catInstructionsFirst = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
       stimulus: 
             "<p>In the first part of the experiment, you will do a categorization task. You will see a color on each trial.<br>" +
             "Your task is to categorize it by pressing the <strong>left</strong> or <strong>right</strong> arrow key.</p>" +
-            "You will see seven sets of trials. In the first half of each set, you will be told if you make a correct or<br>" +
-            "incorrect response so you can learn the categories over time. In the second half of each set, you will categorize<br>"+
-            "more colors, and you will not be given feedback.</p>" +
+            "<p>There are seven sets of trials, each using a different group of colors. Within each set:</p>" +
+            "<ul style='text-align:left; display:inline-block;'>" +
+            "<p>In the <strong>first half</strong>, you will see some of the colors and be told whether each response was <br>" +
+            "correct or incorrect, so you can learn which category each color belongs to.<br>" +
+            "In the <strong>second half</strong>, you will see the <strong>remaining colors from the same set</strong>.<br>"+
+            "These belong to the <strong>same two categories</strong> you just learned, but you will <strong>not</strong> receive feedback.<br>"+
+            "Use what you learned in the first half to categorize them as best you can.</p>" +
+            "</ul>" +
             "<p>If you are unsure which category a color belongs to, make your best guess.<br>" +
             "There will first be a short practice round.</p>" +
             "<p>Press <strong>Continue</strong> when you are ready to begin the practice round.</p>",
@@ -428,13 +452,13 @@
 
 
 
-  function initExperiment() {
-    const allimg_triplets = catStimsActive;
+  async function initExperiment() {
+    const allimg_triplets = categoryStims;
 
     var preload_category = {
         type: jsPsychPreload,
         auto_preload: true,
-        images: catStimsActive.concat(practiceCatStims).concat(unambigStimsActive),
+        images: categoryStims.concat(practiceCatStims).concat(unambiguousCatStims),
         show_progress_bar: true,
         message: "Loading experiment files...",
         error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
@@ -454,7 +478,7 @@
 
     // Unambiguous-block images (img_cat_unambiguous/)
     function getUnambiguousGroup(num) {
-        return unambigStimsActive
+        return unambiguousCatStims
             .filter(name => name.includes('color' + num + '_'));
     }
 
@@ -673,26 +697,70 @@
     });
 }
 
-try {
-    initExperiment();
-} catch (err) {
-    console.error("Failed to build the categorization task:", err);
-    document.body.innerHTML = "<p style='color:#fff;font-family:sans-serif;'>" +
-        "There was a problem building the categorization task: " + err.message + "</p>";
-    throw err;
-}
+initExperiment();
 
-
+*/
  //-----------------------------------------TRIPLET TASK------------------------------------------
  
+ /*
+
+ var tripletCodeOK = false;   // gate flag for the loop
+
+var instructions_triplets_pre = {
+  type: jsPsychSurveyText,
+  questions: [{
+    prompt: function () {
+      var base = "<p>Good job! You have finished the first task. Please let the experimenter know.</p>" +
+                 "Experimenter, please enter the code:";
+      // show a hint only after a wrong attempt
+      if (tripletCodeOK === null) {
+        base = "<p style='color:red;'><strong>That code was not correct — please try again.</strong></p>" + base;
+      }
+      return base;
+    },
+    rows: 1, columns: 6, name: "tripletCode", required: true
+  }],
+  post_trial_gap: 1000,
+  on_finish: function (data) {
+    var entered = (data.response.tripletCode || "").trim().toLowerCase();
+    tripletCodeOK = (entered === "color") ? true : null;  // true = pass, null = wrong
+  }
+};
+
+*/
+
+var instructions_finish_cat = {
+      type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
+      stimulus: 
+       "<p>Good job! You have finished the first task.<br>"+
+        "Feel free to take a short break, then press Continue when you're ready to begin the second task.</p>",
+        choices: ["Continue"],
+        post_trial_gap: 2000,
+        on_finish: function(){
+            shuffle(validation_concat);
+
+        }
+    };
+   timeline.push(instructions_finish_cat);  
+
+/*
+var instructions_triplets_pre_loop = {
+  timeline: [instructions_triplets_pre],
+  loop_function: function () {
+    return tripletCodeOK !== true;   // repeat until the code is "color"
+  }
+};
+timeline.push(instructions_triplets_pre_loop); 
+   */   
     //define testing instructions 
     var instructions_triplets = {
       type: jsPsychHtmlButtonResponse, // CHANGE THIS (instructions)
-      stimulus: "<p>Good job! You have finished the first task.</p>" +
+      stimulus: 
        "<p>In each trial of the second task, you will see three images: one target item on top, and two choices beneath the target item.<br>" +
         "For each trial, <strong>please select the item that is most like the target item.</strong><br>"+
         "If you think the color on the <strong>left</strong> is most similar to the color on top, please press the left arrow key.<br>" +
         "If you think the color on the <strong>right</strong> is most similar to the color on top, please press the right arrow key.<br>" +
+        "<p><img src='example_triplet.png' style='max-width:400px;'></p>" +
         "<p>There may be trials with no obvious answer. In those cases, use your best judgment." +
         "<p>This task will take about half an hour: there will be 3 rounds with 280 trials per round.<br>"+
         "You will have the opportunity to take breaks between rounds.</p>"+
@@ -786,7 +854,67 @@ try {
     //  itself, i.e. NO calibration applied) so the experiment still
     //  runs on monitor 2 before you have the real values.
     // ------------------------------------------------------------
-    var ADJUSTED_COLORS_2 = {};
+    var ADJUSTED_COLORS_2 = {
+        "4DC7E8": "3EC4F5",
+        "1C3D61": "173A65",
+        "5E78A1": "5A74A8",
+        "A0BAE6": "9EB7F5",
+        "512D5F": "49245C",
+        "90689F": "8F62A7",
+        "D5A9E4": "D5A3F1",
+        "72005E": "6A005B",
+        "B8509E": "B846A7",
+        "DB1F9D": "DB00A4",
+        "077ACC": "0074D4",
+        "2E3086": "262584",
+        "746BCA": "7264D5",
+        "600B84": "5A0083",
+        "A553C8": "A647D4",
+        "CD26C7": "CB00CE",
+        "2F6EF6": "1566FF",
+        "3518AD": "2E00B2",
+        "8558F4": "745BF0",
+        "B62EF2": "B600FE",
+        "3B8378": "357F7E",
+        "7EC6BA": "7AC3C6",
+        "000000": "000000",
+        "3B3B3B": "3A393F",
+        "777777": "74737D",
+        "B9B9B9": "B9B6C6",
+        "FFFFFF": "FBF8FF",
+        "5E2B3A": "552338",
+        "A06776": "9F617D",
+        "E6A8B7": "E6A2C3",
+        "C34F74": "C3467C",
+        "E31B73": "E4007C",
+        "184415": "0A410F",
+        "55824D": "527E54",
+        "96C58C": "94C298",
+        "4BCF8E": "00CD94",
+        "443B14": "3A3500",
+        "83764C": "817254",
+        "C7B88B": "CAB799",
+        "632B14": "5A2305",
+        "A8664B": "A76154",
+        "F1A78A": "F0A296",
+        "C94E4B": "C84755",
+        "E81B4B": "ED0048",
+        "608218": "508100",
+        "A3C55B": "A1C26A",
+        "0E8A19": "00880F",
+        "67CF5C": "61CD6A",
+        "897618": "807515",
+        "D0B85A": "D0B46A",
+        "AC6619": "A26716",
+        "F7A75A": "F8A36B",
+        "CC4F1B": "CA482F",
+        "EA1D1D": "E90033",
+        "AAC510": "A1C41F",
+        "73CF10": "12D000",
+        "D5B811": "CFB922",
+        "FBA714": "ECA806"
+    };
+
     Object.keys(ADJUSTED_COLORS_1).forEach(function (h) { ADJUSTED_COLORS_2[h] = h; });
 
     // pick the calibrated color table for this monitor

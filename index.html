@@ -49,7 +49,10 @@
 
 
     //set bg color to medium gray
-    document.body.style.backgroundColor = "rgb(95,95,95)" //(D65 illuminant gray)
+    // Pre-prompt default background (shown behind the monitor prompt).
+    // The monitor-specific calibrated background is applied below, once
+    // monitorNum is known. (D65 illuminant gray.)
+    document.body.style.backgroundColor = "rgb(95,95,95)"
 
     var jsPsych = initJsPsych();
 
@@ -81,6 +84,14 @@
     }
     // record the monitor number on every row of the saved data
     jsPsych.data.addProperties({ monitor: monitorNum });
+
+    // Apply the monitor-specific calibrated background (D65 gray, index 0
+    // of the calibration set). Monitor 1 = 95,95,95 (hand-dialed value).
+    // Monitor 2 = 85,84,92 (same xyY -> XYZ -> sRGB pipeline as the color
+    // tables, including the global -0.01/-0.02/-1 white-point correction;
+    // the faint blue is that correction, matching the tinted neutrals).
+    document.body.style.backgroundColor =
+        (monitorNum === 2) ? "rgb(85,84,92)" : "rgb(95,95,95)";
 
     // pick the monitor-specific stimulus sets.
     // categoryStimuli1.js / unambiguousCatStimuli1.js define categoryStims / unambiguousCatStims (monitor 1).
@@ -846,16 +857,76 @@ timeline.push(instructions_triplets_pre_loop);
     };
 
     // ------------------------------------------------------------
-    //  MONITOR 2 calibrated color table.
-    //  TODO: REPLACE the placeholder below with the monitor-2
-    //  calibration values (original 6-digit hex -> adjusted hex),
-    //  in the same format as ADJUSTED_COLORS_1 above.
-    //  As written, this is an IDENTITY map (every color maps to
-    //  itself, i.e. NO calibration applied) so the experiment still
-    //  runs on monitor 2 before you have the real values.
+    //  MONITOR 2 calibrated color table (BOOTH A).
+    //  Original 6-digit UW58 hex -> monitor-2 adjusted hex.
+    //  Derived from the monitor-2 calibration file (xyY targets) via
+    //  the standard xyY -> XYZ -> sRGB -> hex pipeline (Y/100), the
+    //  same conversion that produced ADJUSTED_COLORS_1. Includes the
+    //  per-color adjustments AND the global (-0.01, -0.02, -1) offset
+    //  applied in that calibration file's loop. (Black is held at
+    //  000000; the global offset drives its target degenerate.)
+    //  57 of 58 colors differ from the original UW58 hex.
     // ------------------------------------------------------------
-    var ADJUSTED_COLORS_2 = {};
-    Object.keys(ADJUSTED_COLORS_1).forEach(function (h) { ADJUSTED_COLORS_2[h] = h; });
+    var ADJUSTED_COLORS_2 = {
+        "4DC7E8": "3EC4F5",
+        "1C3D61": "173A65",
+        "5E78A1": "5A74A8",
+        "A0BAE6": "9EB7F5",
+        "512D5F": "49245C",
+        "90689F": "8F62A7",
+        "D5A9E4": "D5A3F1",
+        "72005E": "6A005B",
+        "B8509E": "B846A7",
+        "DB1F9D": "DB00A4",
+        "077ACC": "0074D4",
+        "2E3086": "262584",
+        "746BCA": "7264D5",
+        "600B84": "5A0083",
+        "A553C8": "A647D4",
+        "CD26C7": "CB00CE",
+        "2F6EF6": "1566FF",
+        "3518AD": "2E00B2",
+        "8558F4": "745BF0",
+        "B62EF2": "B600FE",
+        "3B8378": "357F7E",
+        "7EC6BA": "7AC3C6",
+        "000000": "000000",
+        "3B3B3B": "3A393F",
+        "777777": "74737D",
+        "B9B9B9": "B9B6C6",
+        "FFFFFF": "FBF8FF",
+        "5E2B3A": "552338",
+        "A06776": "9F617D",
+        "E6A8B7": "E6A2C3",
+        "C34F74": "C3467C",
+        "E31B73": "E4007C",
+        "184415": "0A410F",
+        "55824D": "527E54",
+        "96C58C": "94C298",
+        "4BCF8E": "00CD94",
+        "443B14": "3A3500",
+        "83764C": "817254",
+        "C7B88B": "CAB799",
+        "632B14": "5A2305",
+        "A8664B": "A76154",
+        "F1A78A": "F0A296",
+        "C94E4B": "C84755",
+        "E81B4B": "ED0048",
+        "608218": "508100",
+        "A3C55B": "A1C26A",
+        "0E8A19": "00880F",
+        "67CF5C": "61CD6A",
+        "897618": "807515",
+        "D0B85A": "D0B46A",
+        "AC6619": "A26716",
+        "F7A75A": "F8A36B",
+        "CC4F1B": "CA482F",
+        "EA1D1D": "E90033",
+        "AAC510": "A1C41F",
+        "73CF10": "12D000",
+        "D5B811": "CFB922",
+        "FBA714": "ECA806"
+    };
 
     // pick the calibrated color table for this monitor
     var ADJUSTED_COLORS = (monitorNum === 2) ? ADJUSTED_COLORS_2 : ADJUSTED_COLORS_1;
