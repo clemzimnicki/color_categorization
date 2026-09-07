@@ -746,11 +746,7 @@ var instructions_finish_cat = {
        "<p>Good job! You have finished the first task.<br>"+
         "Feel free to take a short break, then press Continue when you're ready to begin the second task.</p>",
         choices: ["Continue"],
-        post_trial_gap: 2000,
-        on_finish: function(){
-            shuffle(validation_concat);
-
-        }
+        post_trial_gap: 2000
     };
    timeline.push(instructions_finish_cat);  
 
@@ -1471,7 +1467,7 @@ var demographics = {
       return output;
       },
       
-      choices: []
+      choices: "NO_KEYS"
    };
   
 
