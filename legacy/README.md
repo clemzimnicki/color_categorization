@@ -12,4 +12,4 @@ participants actually saw on screen, so they are required for any salvage
 analysis of that data.
 
 Do not edit or regenerate this file. Do not delete it, even after the
-corrected renderer (`color/renderColor.js`) is fully rolled out.
+corrected renderer (`color_rendering/renderColor.js`) is fully rolled out.

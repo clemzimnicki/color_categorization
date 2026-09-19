@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Gate A/B verification, run with: node color/test_gates.js
+// Gate A/B verification, run with: node color_rendering/test_gates.js
 // Gate A (identity join) is checked in Python at build time (build_manifests.py
 // asserts it and fails loudly); this script re-checks 58/58 coverage as a
 // cheap redundant check, then runs Gate B: renderColor() vs the golden
@@ -23,7 +23,7 @@ function toHex(rgb) {
 let failures = 0;
 
 // ---- Gate A: 58/58 identity coverage -------------------------------------
-const targets = readJSON(path.join(ROOT, "color", "uw58_targets.json"));
+const targets = readJSON(path.join(ROOT, "color_rendering", "uw58_targets.json"));
 const targetKeys = Object.keys(targets);
 if (targetKeys.length !== 58) {
     console.error(`GATE A FAIL: expected 58 targets, found ${targetKeys.length}`);
@@ -34,8 +34,8 @@ if (targetKeys.length !== 58) {
 
 // ---- Gate B: renderColor() vs golden gun-pipeline fixtures ----------------
 for (const monitor of [1, 2]) {
-    const calib = readJSON(path.join(ROOT, "color", `calib_monitor${monitor}.json`));
-    const fixture = readJSON(path.join(ROOT, "color", "fixtures", `gun_monitor${monitor}.json`));
+    const calib = readJSON(path.join(ROOT, "color_rendering", `calib_monitor${monitor}.json`));
+    const fixture = readJSON(path.join(ROOT, "color_rendering", "fixtures", `gun_monitor${monitor}.json`));
 
     let mismatches = 0;
     for (const identity of targetKeys) {

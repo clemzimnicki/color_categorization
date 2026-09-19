@@ -20,8 +20,8 @@
     <script src="jspsych/plugin-image-button-response.js"></script>
     <script src ="colorNames.json"></script>
     <script src ="checkTrials.json"></script>
-    <script src ="color/renderColor.js"></script>
-    <script src ="color/self_test.js"></script>
+    <script src ="color_rendering/renderColor.js"></script>
+    <script src ="color_rendering/self_test.js"></script>
     <script src ="categoryStimuli1.js"></script>
     <script src ="categoryStimuli2.js"></script>
     <script src ="practiceCatStimuli.js"></script>
@@ -87,7 +87,7 @@
     // ============================================================
     //  COLOR: canonical targets + this monitor's manifest, loaded once
     //  monitorNum is known. Both the triplet task and the calibration/
-    //  measurement page compute colors through renderColor() (color/
+    //  measurement page compute colors through renderColor() (color_rendering/
     //  renderColor.js) driven by this same data -- see
     //  COLOR_REFACTOR_BRIEF.md for why there must be exactly one copy
     //  of this math.
@@ -113,8 +113,8 @@
         return ("00000000" + h.toString(16)).slice(-8);
     }
 
-    var TARGETS = JSON.parse(fetchTextSync("color/uw58_targets.json"));
-    var calibText = fetchTextSync("color/calib_monitor" + monitorNum + ".json");
+    var TARGETS = JSON.parse(fetchTextSync("color_rendering/uw58_targets.json"));
+    var calibText = fetchTextSync("color_rendering/calib_monitor" + monitorNum + ".json");
     var CALIB = JSON.parse(calibText);
     var CALIB_HASH = fnv1aHash(calibText);
 
@@ -847,7 +847,7 @@ timeline.push(instructions_triplets_pre_loop);
     //  TRIPLET TASK: inline color rendering (no PNGs).
     //  Colors are computed at runtime from the canonical UW58 xyY targets
     //  (TARGETS) through this monitor's measured gun characterization
-    //  (CALIB), via the single shared renderColor() (color/renderColor.js).
+    //  (CALIB), via the single shared renderColor() (color_rendering/renderColor.js).
     //  Stimulus identifiers (colorHex entries and the validation/check
     //  head/choice fields) carry the original 6-digit hex, which is also
     //  the key into TARGETS/CALIB.adjustments.

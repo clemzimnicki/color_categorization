@@ -9,9 +9,9 @@
 // copy of this math in the codebase.
 //
 // renderColor(target, calib, identity)
-//   target   {x, y, Y}            canonical xyY for this identity (color/uw58_targets.json).
+//   target   {x, y, Y}            canonical xyY for this identity (color_rendering/uw58_targets.json).
 //                                  Y is the ABSOLUTE ~0-100 scale, not Y/100.
-//   calib    monitor manifest     primaries, gamma, global_offset, adjustments (color/calib_monitorN.json)
+//   calib    monitor manifest     primaries, gamma, global_offset, adjustments (color_rendering/calib_monitorN.json)
 //   identity 6-hex string         key into calib.adjustments
 // returns [R, G, B] each 0-255 (or [0,0,0] if out of gamut / out of range).
 // ------------------------------------------------------------------------

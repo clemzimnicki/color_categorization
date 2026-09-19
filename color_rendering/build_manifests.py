@@ -5,13 +5,13 @@ build_manifests.py
 Offline, one-time build step (not loaded at runtime). Reads the two monitor
 calibration HTMLs and produces the JSON the runtime renderer consumes:
 
-  color/uw58_targets.json     canonical {identityHex: {x,y,Y}} targets, no
+  color_rendering/uw58_targets.json     canonical {identityHex: {x,y,Y}} targets, no
                                per-monitor adjustments
-  color/calib_monitor1.json   monitor-1 manifest (primaries, gamma, offset,
+  color_rendering/calib_monitor1.json   monitor-1 manifest (primaries, gamma, offset,
                                per-color adjustments, expected_rgb, ...)
-  color/calib_monitor2.json   monitor-2 manifest
-  color/fixtures/gun_monitor1.json   golden {identityHex: "RRGGBB"}
-  color/fixtures/gun_monitor2.json   golden {identityHex: "RRGGBB"}
+  color_rendering/calib_monitor2.json   monitor-2 manifest
+  color_rendering/fixtures/gun_monitor1.json   golden {identityHex: "RRGGBB"}
+  color_rendering/fixtures/gun_monitor2.json   golden {identityHex: "RRGGBB"}
 
 The gun-pipeline math is NOT reimplemented here: this script imports
 calibration_files/build_calibration_colors_gun.py (the human-reviewed,
@@ -20,7 +20,7 @@ so the fixtures are byte-for-byte what that script would print. This script
 only handles re-keying (set index -> identity hex) and JSON shaping.
 
 Run from the repo root:
-    python3 color/build_manifests.py
+    python3 color_rendering/build_manifests.py
 """
 
 import importlib.util
@@ -30,7 +30,7 @@ import sys
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAL_DIR = os.path.join(REPO_ROOT, "calibration_files")
-COLOR_DIR = os.path.join(REPO_ROOT, "color")
+COLOR_DIR = os.path.join(REPO_ROOT, "color_rendering")
 
 MONITORS = [
     {"num": 1, "label": "near_door", "file": "calibration_monitor_1_near_door.html",
@@ -170,7 +170,7 @@ def build_manifest(gun, cal_text, mon_spec):
         "expected_rgb": expected_rgb,
         "measured_xyY": measured_xyY,
         # calibration_verified is NOT stored here: it is derived at runtime by
-        # color/self_test.js from whether measured_xyY is fully populated and
+        # color_rendering/self_test.js from whether measured_xyY is fully populated and
         # within tolerance (see COLOR_REFACTOR_BRIEF.md §6 Gate C). A static
         # field in this file would be a second, out-of-sync source of truth.
     }
@@ -192,7 +192,7 @@ def main():
     with open(os.path.join(COLOR_DIR, "uw58_targets.json"), "w") as f:
         json.dump(targets, f, indent=2, sort_keys=True)
         f.write("\n")
-    print("wrote color/uw58_targets.json ({} entries)".format(len(targets)))
+    print("wrote color_rendering/uw58_targets.json ({} entries)".format(len(targets)))
 
     for mon_spec in MONITORS:
         cal_text = cal_text_by_monitor[mon_spec["num"]]
