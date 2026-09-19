@@ -298,7 +298,6 @@
     92
   ],
   "background_source": "as-run value was derived via the OLD standard-sRGB pipeline (the bug this refactor fixes), not the gun pipeline -- flagged for human re-measurement decision",
-  "calibration_verified": false,
   "expected_rgb": {
     "000000": "000000",
     "077ACC": "0053A8",

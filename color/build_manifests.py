@@ -169,7 +169,10 @@ def build_manifest(gun, cal_text, mon_spec):
         "background_source": mon_spec["background_source"],
         "expected_rgb": expected_rgb,
         "measured_xyY": measured_xyY,
-        "calibration_verified": False,
+        # calibration_verified is NOT stored here: it is derived at runtime by
+        # color/self_test.js from whether measured_xyY is fully populated and
+        # within tolerance (see COLOR_REFACTOR_BRIEF.md §6 Gate C). A static
+        # field in this file would be a second, out-of-sync source of truth.
     }
     return manifest, expected_rgb
 

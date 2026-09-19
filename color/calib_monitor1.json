@@ -298,7 +298,6 @@
     95
   ],
   "background_source": "hand-dialed (not derived from any pipeline)",
-  "calibration_verified": false,
   "expected_rgb": {
     "000000": "000000",
     "077ACC": "005A8E",
