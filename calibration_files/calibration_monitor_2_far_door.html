@@ -1,0 +1,509 @@
+
+<!-- Computer monitor calibration
+
+This file (Index-monitorCalib) should live in a folder called "monitorCalibrationExperiment-checkingYourColors". 
+In this folder should also be a '"scripts" subfolder with some various scripts in it. 
+All of these items need to be on the given computer for the code to work 
+(i.e., the monitorCalibrationExperiment-checkingYourColors folder should be downloaded onto the device with the monitor that is going to be calibrated. 
+
+Once downloaded, double click this file Index-monitorCalib-yourColors from the folder and it should load into a web browser. 
+
+Fill in the corresponding info for the monitor in the sections below and the desired colors. 
+Each desired color will be presented as a square, one a time. If adjustments need made, they can be added to the adj item for each coordinate (x,y,Y). -->
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Experiment</title>
+        <!-- Load in the jspsych tools, plugins,and layout -->
+        <script src= "scripts/jspsych.js"></script>
+        <script src= "scripts/jspsych-html-keyboard-response.js"></script>
+        <script src= "scripts/jspsych-html-button-response.js"></script>
+        <script src = "scripts/jspsych-fullscreen.js"></script>
+        <script src = "scripts/jspsych-reconstruction.js"></script>
+        <script src = "scripts/jspsych-call-function.js"></script>
+        <link href= "scripts/jspsychMAS.css" rel="stylesheet" type="text/css"></link>
+        <style>
+        </style>
+    </head>
+    <body>
+    </body>
+
+
+    
+<!--------------------- Here is where the experiment is created ------------------------------------------->
+<script>
+
+// BOOTH A -----------------------------------------------------------------
+//Calibration date: 9-23-22
+
+/*----------------------------------Part 1: PUT IN YOUR MONITOR-SPECIFIC VALUES IN THE FOLLOWING SECTION------------------------------------ */
+//the constant and slope was taken from the linear equation fit to log luminance as a function of log voltage 
+
+constantR = 1.714
+slopeR =  0.4369
+
+constantG = 1.447
+slopeG = 0.4311
+
+constantB = 1.8949
+slopeB = 0.4456
+
+//Monitor gun chromaticiites (x and y are from CIE 1931 xyY space)
+xR  = 0.654
+yR  = 0.331  
+
+xG = 0.340   
+yG = 0.6  
+
+xB = 0.150  
+yB = 0.068  
+
+/*----------------------------------Part 2: ENTER DESIRED COLOR COORDINATES IN xyY ------------------------------------ */
+
+numColors = 59 //currenlty includes background color
+
+//here are the original values of xyY
+set_xorig = [.3127,0.22397,0.2081,0.24471,0.26261,0.28644,0.29797,0.30272,0.36941,0.35288,0.40795,0.18715,0.19063,0.23146,0.25495,0.27871,0.32783,0.17813,0.1742,0.21726,0.25909,0.25332,0.26938,0,0.31273,0.31273,0.31273,0.31273,0.41044,0.37353,0.3568,0.43376,0.49181,0.3075,0.31561,0.31654,0.27022,0.41792,0.38179,0.36355,0.52174,0.44682,0.41032,0.50874,0.56618,0.36753,0.35998,0.29736,0.31049,0.43671,0.4092,0.50246,0.4572,0.56315,0.61793,0.39381,0.34264,0.44388,0.49196,0.22397];
+set_yorig = [.329, 0.28399,0.21415,0.25394,0.27354,0.19884,0.24051,0.2622,0.18108,0.2259,0.21059,0.19157,0.1298,0.18448,0.12284,0.17635,0.1674,0.14021,0.082515,0.13588,0.13088,0.35108,0.34523,0,0.32902,0.32902,0.32902,0.32902,0.2905,0.30534,0.31196,0.28095,0.25666,0.52435,0.44408,0.41004,0.43268,0.44961,0.40728,0.38634,0.37656,0.36993,0.36214,0.33341,0.29873,0.52508,0.47135,0.57731,0.50294,0.47238,0.43925,0.42134,0.40735,0.37345,0.32963,0.52123,0.56147,0.48131,0.4425,0.28399];
+
+//Array used to specify lightness (CIE Y * 116, which is the maximum cd/m2 for our monitor)
+set_Yorig = [10, 48.278,4.4155,18.419,48.278,4.4155,18.419,48.278,4.4155,18.419,18.419,18.419,4.4155,18.419,4.4155,18.419,18.419,18.419,4.4155,18.419,18.419,18.419,48.278,0,4.4155,18.419,48.278,100,4.4155,18.419,48.278,18.419,18.419,4.4155,18.419,48.278,48.278,4.4155,18.419,48.278,4.4155,18.419,48.278,18.419,18.419,18.419,48.278,18.419,48.278,18.419,48.278,18.419,48.278,18.419,18.419,48.278,48.278,48.278,48.278,48.278];
+
+
+set_xadj = [0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,-0.056,0.03,0,0,0.04,
+0,0,0,0.04,0,0,0,0,0,0,
+0,0,0,0,0,-.03,0,0] //here is where you can update/adjust the values for x
+
+set_yadj = [0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0.02,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0.046,0,0,0.02,0.0672,0,0,0.03,
+0,0,0,0,0.0523,0,0.04,0,0.03,0,
+0.03,0,0,0,0.02,0.06,0.02,0.0316] //here is where you can update/adjust the values for y
+
+set_Yadj = [0,
+0,.7155,0,.438,0,0,-.692,0,0,-.4,
+-.4,0,0,0,0,-1,0,0,0,-1,
+0,0,0,.7685,0,.7685,-3.53,0,0,-.5,
+0,0,.5,0,0,-5.4,0,0,1.4,0,
+0,-.8,0,-1,0,0,0,0,0,0,
+0,0,0,0,0,-2.2,1,-1.582]
+
+var set_x = []
+var set_y = []
+var set_Y = []
+for(var j = 0; j < numColors; j++) {
+    set_x.push(set_xorig[j] + set_xadj[j] - 0.01)
+    set_y.push(set_yorig[j] + set_yadj[j] - 0.02)
+    set_Y.push(set_Yorig[j] + set_Yadj[j] - 1)
+}
+
+
+console.log("test")
+//console.log(set_Y)
+//console.log(set_Y[1])
+
+/*var Name = [  "background", 
+         "white",
+         "R-proto",
+         "R-non",
+         "O-proto",
+         "O-non",
+         "Y-proto",
+         "Y-non",
+         "G-proto",
+         "G-non",
+         "B-proto",
+         "B-non",
+         "P-proto",
+         "P-non", 
+         "black",
+         "gray"]
+         */
+
+var Rval = new Array(numColors).fill(0)
+var Gval = new Array(numColors).fill(0)
+var Bval = new Array(numColors).fill(0)
+
+
+
+/*----------------------------------Part 3: ACQUIRE RGB COORDINATES FOR YOUR MONITOR ------------------------------------ */
+
+//Turns the xyY values into RGB values and stores them in Rval, Gval and Bval
+
+var colors = new Array
+
+console.log("set_Y:", set_Y)
+console.log("set_x:", set_x)
+console.log("set_y:", set_y)
+
+for (var i = 0; i<numColors; i++){
+
+  Oldx = set_x[i]
+  Oldy = set_y[i]
+
+   step1 = (Oldx - xB) * (yR - yB) - (Oldy - yB) * (xR - xB);
+   step2 = (xG - xB) * (yR - yB) - (yG - yB) * (xR - xB);     
+   step3 = step1 / step2;
+   step4 = ((Oldx - xB) - step3 * (xG - xB)) / (xR - xB);
+   step5 = 1.0 - step3 - step4;
+   step6 = step4 * yR + step3 * yG + step5 * yB;
+
+   GunPercentR = (step4 * yR) / step6;
+   GunPercentG = (step3 * yG) / step6;
+   GunPercentB = 1.0 - GunPercentR - GunPercentG;
+  
+   // This makes the chromaticity gray if it is outside the gammut of the monitor
+   if (GunPercentR < 0.0){ GunPercentR = 0.0;}// print((i)+"\n");}
+   if (GunPercentG < 0.0){ GunPercentG = 0.0;}// print((i)+"\n");}
+   if (GunPercentB < 0.0){ GunPercentB = 0.0;}// print((i)+"\n");}
+
+
+   var R = Math.pow(10.0,constantR)*(Math.pow((GunPercentR*set_Y[i]),slopeR))
+   var G = Math.pow(10.0,constantG)*(Math.pow((GunPercentG*set_Y[i]),slopeG))
+   var B = Math.pow(10.0,constantB)*(Math.pow((GunPercentB*set_Y[i]),slopeB))
+   
+
+   //R = (10.0^constantR)*((GunPercentR * set_Y[i])^slopeR)
+   //G = (10.0^constantG)*((GunPercentG * set_Y[i])^slopeG)
+   //B = (10.0^constantB)*((GunPercentB * set_Y[i])^slopeB)
+   //R = pow(10.0,constantR)*pow((GunPercentR * BCP37_Y[i]),slopeR);
+   //G = pow(10.0,constantG)*pow((GunPercentG * BCP37_Y[i]),slopeG);
+   //B = pow(10.0,constantB)*pow((GunPercentB * BCP37_Y[i]),slopeB);
+  
+// This makes the color appear black if it is outside the gammut of the monitor
+   //if(is.na(R)|| is.na(G) || is.na(B)){
+    //  R=FALSE
+     // G = FALSE
+      //B = FALSE
+  // }
+  if(R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255){
+    R = 0;
+    G = 0;
+    B = 0;
+  }
+
+
+Rval[i] = Math.round(R)
+Gval[i] = Math.round(G)
+Bval[i] = Math.round(B)
+
+ 
+//sets boxes for overview screen
+//boxes[i].set_color(Rval[i], Gval[i], Bval[i]);
+}
+
+
+//colors = (Name, set_x, set_y, set_Y, Rval, Gval, Bval)
+//#write.csv(colors,"protoSatAliens-BoothA-4.csv")
+
+console.log(Rval)
+console.log(Gval)
+console.log(Bval)
+
+// Set background color to gray //
+document.body.style.backgroundColor = "rgb("+Rval[0]+","+Gval[0]+","+Bval[0]+")" 
+
+
+
+/*----------------------------------Part 4: GENERAL EXPERIMENT INFO  ------------------------------------ */
+
+
+//General experiment info to update
+    var expTime = 5; // How long experiment will take in minutes
+    var expServer= 0;  //0 = not server version; 1 = server version (checks ID register, condition, data saving)
+        console.log(expServer)
+        console.log("9/3-v1")
+    var expType = 2; // 0 = SONA version; 1 = mTurk version (updates consent, debriefing)
+    var MturkComplete_code = "dfkslepcane193";  //UPDATE =Code copied from mTurk Cloud Research Fixed completion code
+
+// Create timeline variable //
+    var timeline1 = []; //timeline for initial screen & fullscreen loading (before registering ID)
+    var timeline = []; //timeline for experiment (once ID is registered)
+
+
+
+// Pop-up box if people try to leave the page (including refreshing) 
+    window.onbeforeunload = function() {
+        return "If you leave or refresh the page, you will not be able to finish the experiment.";
+    };
+
+
+// Initial welcome screen
+    var initial_screen = {
+        type: 'html-button-response',
+        stimulus: 'Welcome to monitor calibrating!' +
+            '<p>At the bottom of this screen, you will see a button that says "Begin Experiment".'+
+            '<br>Please click that button when you are ready to begin.',
+        //post_trial_gap: 100,
+        choices: ['Begin Experiment'] }
+    timeline1.push(initial_screen);
+
+
+
+// Get & create subject ID
+    //Give each subject a random ID
+    var randomID = Math.floor((Math.random() * 10000) + 10000); // Create a random ID code for each participant
+    var subject_id = randomID // Create a random ID code for each participant
+
+    //Give each subject a completion code to enter into mTurk
+    if (expType == 0){ // 0 = SONA version; 
+        complete_code = Math.floor((Math.random() * 10000) + 30000);
+    }else if (expType == 1){ //1 = mTurk version 
+        complete_code = MturkComplete_code;
+    }else if (expType == 2){
+        complete_code = Math.floor((Math.random() * 10000) + 30000);
+    }
+    
+    //Get mTurk/sonaID - use .id for SONA and .workerId for CloudResearch
+    var urlvar = jsPsych.data.urlVariables();
+    if (expType == 0){ // 0 = SONA version; 
+        var workerID = urlvar.id // urlvar.id  
+    }else if (expType == 1){ //1 = mTurk version 
+        var workerID = urlvar.workerId
+    }else if (expType == 2){
+        var workerID = urlvar.id
+    }
+
+//Enter fullscreen mode- asks participants to press "continue" button to enter full screen
+    // Once participants enter fullscreen mode, their ID is recorded
+    timeline1.push({
+        type: 'fullscreen',
+        fullscreen_mode: true, //change to true to turn on & false to turn off 
+        on_finish: function (){registration()} // Function to register subject ID
+        })
+
+
+// Check if worker/sonaID is already recorded
+  function registration(){
+
+    // If not on server, move on
+    if (expServer == 0){
+        register_success(); //calls the entire experiment to begin
+
+    //If on server, check if ID has been registered
+    }else if (expServer == 1){
+        serverComm.register_subject(workerID,
+            function(){ // If the subject has a unique id that has not yet been recorded, the experiment will load/begin.
+                register_success(); //calls the entire experiment to begin
+            },
+            function(){ // If ID has already been registered, give error message. 
+
+                document.querySelector('body').innerHTML = '<p>Our records indicate that you have already started this experiment. Due to the nature of the experiment, restarting is not permitted.</p><p>If you believe this message is in error, you can contact the researchers at schoenlein@wisc.edu.</p><p>Our apologies for the trouble.</p>';
+            },
+            function(){ // If there is a technical error.
+                document.querySelector('body').innerHTML = '<p>Our apologies. There was a technical error on our end while loading the experiment.</p><p>You will not be able to complete the experiment. You can contact the researchers at schoenlein@wisc.edu with any questions.</p><p> Our apologies for the trouble.</p>';
+            })
+        }
+    }
+
+
+function register_success (){ // the entire experiment is embedded in this function
+
+// Assignment to a condition //
+    var assigned_condition = null;
+    var n_conditions = 1;
+
+    // Not on server- randomly select condition
+    if (expServer == 0){
+        function getRandomIntInclusive(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return  Math.floor(Math.random() * (max - min + 1));
+        }
+        assigned_condition = getRandomIntInclusive(0,n_conditions-1);
+        condition_success()
+
+    //If on server, check condition of previous participant
+    }else if (expServer == 1){
+        serverComm.assign_condition(subject_id, n_conditions,
+        function(response){
+            assigned_condition = response.assignedCondition; //Using the table in the database to assign conditions
+            condition_success()
+        },
+        function(){
+             document.querySelector('body').innerHTML = '<p>Our apologies. There was a technical error on our end while loading the experiment.</p><p>You will not be able to complete the experiment. You can contact the researchers at schoenlein@wisc.edu with any questions.</p><p>Our apologies for the trouble.</p>';
+        });
+    }
+
+
+
+ function condition_success(){ //the entire experiment is now embedded in this function.
+
+// Set condition
+    var whichCondition =  assigned_condition; 
+
+
+// Get Start time
+    var start_time = new Date();
+
+
+// Record mturk/SONAID, condition, subjectID, and date info
+    jsPsych.data.addProperties({workerID: workerID, conditionProto: whichCondition, subjectID: subject_id, dateInfo: start_time});
+
+
+// "Fake trial" for checking if experiment loaded correctly
+    var loadCheck = {
+        type: 'html-keyboard-response',
+        stimulus: "",
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 10}
+    timeline.push(loadCheck);
+
+
+// Save the fake trial data to the server (this is done as a way to check that if there is not a full dataset for a registered ID, that the experiment loaded properly and the participant dropped out)
+    timeline.push({
+        type: 'call-function',
+        func: function(){saveData(jsPsych.data.get())}
+        });
+
+        
+    //load fake trial again so that consent presents. 
+    timeline.push(loadCheck);
+
+
+
+
+
+
+/*----------------------------------Part 1: Calibration squares ------------------------------------ */
+
+
+//add a blank page with just the background color first
+
+//then rotate through each of the desired remaining colors, with the given background
+
+var red_function = function(param){ 
+        var idx = Math.round(param * (numColors - 1));
+        var Rconstant =  Rval[idx] //stepSet[param]; 
+        var Gconstant = Gval[idx]; 
+        var Bconstant = Bval[idx]; 
+        var xdesired = set_xorig[idx]
+        var ydesired = set_yorig[idx]
+        var Ydesired = set_Yorig[idx]
+        //var colorName = Name[param]
+        var html = '<div style="display: block; margin: auto; height: 500px; width: 500px; position: relative;">'+
+        '<div style="display: block; position: absolute; top: 150px; left: 100px; background-color: rgb('+Rconstant+','+Gconstant+', '+Bconstant+'); width: 300px; height: 300px "></div> '+
+        '<p>Color: '+idx+', '+
+        '<br>color desired: x: '+xdesired+', y: '+ydesired +', Y: '+Ydesired+''+
+        '<br>monitor rgb('+Rconstant+', '+Gconstant+', '+Bconstant+')</p>'+
+        '</div><p>Press A to increase and B to decrease. Press continue when finished.</p>';
+        return html;
+    }
+
+
+// Reds
+var redBlock = {
+    type: "html-keyboard-response",
+    stimulus: "<p> Press the spacebar to continue. </p>",
+    choices: [32]
+    };
+timeline.push(redBlock);
+
+   
+    var reds = {
+        type: "reconstruction", 
+        stim_function: red_function,
+        starting_value: 1 / (numColors - 1),
+        step_size: 1 / (numColors - 1),
+        key_increase: 'a',
+        key_decrease: 'b',
+        }
+    timeline.push(reds);
+
+
+        
+    
+
+/* ---------------------------------- End of main experiment ---------------------------------------- */
+
+
+
+//Exit fullscreen
+timeline.push({
+    type: 'fullscreen',
+    fullscreen_mode: true
+})
+
+
+//Saving data
+    //server calling with AJAX
+        function saveData(data_object) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'write_data.php');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+            if(xhr.status == 200){
+            var response = JSON.parse(JSON.stringify(xhr.responseText));
+
+            }
+        };
+        xhr.send(data_object.json());
+        }
+
+    //Remove (from jspsych data) the first line of data (consent form), which has already been written to the database & create a new variable with the rest of the data to save
+    function finalSave (){
+        var data_to_save = jsPsych.data.get().filterCustom(function(trial){
+            return trial.trial_index > 0;})
+        saveData(data_to_save)
+        }
+
+    //Call function to save all the data
+        timeline.push({
+        type: 'call-function',
+        func: finalSave
+        });
+ 
+
+
+//Present completion/debriefing screen
+    var end_completion = {
+        type: "html-keyboard-response",
+        stimulus: function(){
+        // jsPsych.data.get().localSave('csv',randomID+".csv") // saves to local device
+
+             //SONA version
+            if (expType == 2){
+                 return "<p>Great job!</p>"+
+                 "<p>You can now close this screen" ;
+
+
+
+             // mTurk version -MELISSA UPDATE
+            }else if (expType == 1){
+                return "<p>Great job! You have finished the experiment.</p>" +
+                "<p>The goal of this experiment is to investigate whether semantics plays a role when interpreting colormap data visualizations." +
+                "<p>You might have seen colormaps displaying data about glacial ice, ocean water, or wild fire. Different participants saw the colormaps in various colors." +
+                "<p>Thank you for participating!"+
+                "<br>Please enter the following code on your mTurk HIT: <br>"+complete_code+"</p>"+
+                "<p>You may now close this window.</p>";
+            }},
+        choices: jsPsych.NO_KEYS} //Prevents any input reponse from moving beyond the screen
+    timeline.push(end_completion)
+
+
+// Run the main timeline sequence this timeline is embedded in the register_success & condition_success function
+    jsPsych.init({
+            timeline: timeline,
+        })
+
+
+ } // end of condition_success function
+}//end of register_success function
+
+
+// Run the timeline sequence // - Timeline1 for initial screen (before ID recorded)
+jsPsych.init({
+     timeline: timeline1,
+    })
+
+
+    </script>
+</html>
