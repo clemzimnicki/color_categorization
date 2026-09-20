@@ -13,6 +13,13 @@ calibration HTMLs and produces the JSON the runtime renderer consumes:
   color_rendering/fixtures/gun_monitor1.json   golden {identityHex: "RRGGBB"}
   color_rendering/fixtures/gun_monitor2.json   golden {identityHex: "RRGGBB"}
 
+Also emits a `var NAME = {...};`-wrapped .data.js sibling of each .json file
+(uw58_targets.data.js, calib_monitor1.data.js, calib_monitor2.data.js), so
+color_rendering/measure.html can load them with a plain <script src> tag --
+which, unlike fetch()/XHR, is not blocked by the Same Origin Policy under
+file://. That lets measure.html be opened by double-clicking it, with no
+local web server and no Python install needed on the measurement machine.
+
 The gun-pipeline math is NOT reimplemented here: this script imports
 calibration_files/build_calibration_colors_gun.py (the human-reviewed,
 already-verified reference implementation) and calls its functions directly,
@@ -177,6 +184,21 @@ def build_manifest(gun, cal_text, mon_spec):
     return manifest, expected_rgb
 
 
+def write_data_js(var_name, obj, path):
+    """Same content as the canonical JSON, wrapped as `var NAME = {...};` so
+    it can be loaded with a plain <script src> tag. Unlike fetch()/XHR, a
+    <script src> load of a local file is NOT blocked by the Same Origin
+    Policy under file:// -- this is what lets color_rendering/measure.html
+    be opened by double-clicking it, with no local server / no Python
+    install needed. Always regenerated from the same source as the .json
+    file, so it cannot drift out of sync with it.
+    """
+    with open(path, "w") as f:
+        f.write("var {} = ".format(var_name))
+        json.dump(obj, f, indent=2, sort_keys=True)
+        f.write(";\n")
+
+
 def main():
     gun = load_gun_module()
 
@@ -194,6 +216,10 @@ def main():
         f.write("\n")
     print("wrote color_rendering/uw58_targets.json ({} entries)".format(len(targets)))
 
+    targets_js_path = os.path.join(COLOR_DIR, "uw58_targets.data.js")
+    write_data_js("UW58_TARGETS", targets, targets_js_path)
+    print("wrote {}".format(os.path.relpath(targets_js_path, REPO_ROOT)))
+
     for mon_spec in MONITORS:
         cal_text = cal_text_by_monitor[mon_spec["num"]]
         manifest, expected_rgb = build_manifest(gun, cal_text, mon_spec)
@@ -203,6 +229,10 @@ def main():
             json.dump(manifest, f, indent=2, sort_keys=True)
             f.write("\n")
         print("wrote {}".format(os.path.relpath(manifest_path, REPO_ROOT)))
+
+        manifest_js_path = os.path.join(COLOR_DIR, "calib_monitor{}.data.js".format(mon_spec["num"]))
+        write_data_js("CALIB_MONITOR_{}".format(mon_spec["num"]), manifest, manifest_js_path)
+        print("wrote {}".format(os.path.relpath(manifest_js_path, REPO_ROOT)))
 
         fixture_path = os.path.join(COLOR_DIR, "fixtures",
                                      "gun_monitor{}.json".format(mon_spec["num"]))

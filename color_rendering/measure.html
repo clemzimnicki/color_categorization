@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <title>UW58 color measurement viewer</title>
 <script src="renderColor.js"></script>
+<script src="uw58_targets.data.js"></script>
+<script src="calib_monitor1.data.js"></script>
+<script src="calib_monitor2.data.js"></script>
 <style>
     html, body {
         margin: 0;
@@ -79,19 +82,6 @@
 <script>
     "use strict";
 
-    function fetchTextSync(url) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, false);
-        xhr.send(null);
-        if (xhr.status !== 200 && xhr.status !== 0) {
-            throw new Error("Failed to load " + url + " (status " + xhr.status + "). " +
-                "If you opened this file directly (file://), your browser may be blocking " +
-                "local file requests -- try serving this folder with a local web server " +
-                "instead, e.g. `python3 -m http.server` from color_rendering/.");
-        }
-        return xhr.responseText;
-    }
-
     var monitorNum = null;
     while (monitorNum !== 1 && monitorNum !== 2) {
         var entry = window.prompt("Monitor number (1 or 2):", "");
@@ -105,8 +95,11 @@
         }
     }
 
-    var TARGETS = JSON.parse(fetchTextSync("uw58_targets.json"));
-    var CALIB = JSON.parse(fetchTextSync("calib_monitor" + monitorNum + ".json"));
+    // Loaded via plain <script src> tags above (uw58_targets.data.js,
+    // calib_monitor{1,2}.data.js) rather than fetch()/XHR, so this page
+    // works when opened directly (file://) with no local server needed.
+    var TARGETS = UW58_TARGETS;
+    var CALIB = (monitorNum === 2) ? CALIB_MONITOR_2 : CALIB_MONITOR_1;
 
     // Same background the triplet task shows behind its squares -- read
     // from the manifest, not recomputed (see COLOR_REFACTOR_BRIEF.md §4.4).
