@@ -8,27 +8,30 @@
     html, body {
         margin: 0;
         height: 100%;
-        background: #000;
         color: #fff;
         font-family: monospace;
         overflow: hidden;
     }
+    /* body background is set from calib.background_rgb once CALIB loads --
+       this is the same background color the triplet task uses. */
+    /* 150x150 matches colorSquare() in index.html -- same size, color, and
+       background as the triplet task, not just the same color. */
     #square {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 260px;
-        bottom: 0;
+        top: 50%;
+        left: 50%;
+        width: 150px;
+        height: 150px;
+        transform: translate(-50%, -50%);
     }
     #panel {
-        position: absolute;
+        position: fixed;
         top: 0;
-        right: 0;
-        width: 260px;
-        bottom: 0;
+        left: 0;
+        max-width: 320px;
         box-sizing: border-box;
-        padding: 16px;
-        background: #111;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.72);
         font-size: 13px;
         line-height: 1.5;
     }
@@ -37,7 +40,7 @@
         margin: 0 0 8px 0;
     }
     #panel .row { margin-bottom: 10px; }
-    #panel .label { color: #888; }
+    #panel .label { color: #aaa; }
     #panel .value { font-weight: bold; }
     #panel button {
         font-family: monospace;
@@ -70,7 +73,7 @@
         <button id="btn-prev">&larr; prev</button>
         <button id="btn-next">next &rarr;</button>
     </div>
-    <div class="row" style="color:#666;">arrow keys also work. this is exactly renderColor() -- the same function the triplet task uses -- so what you measure here is what the study will show.</div>
+    <div class="row" style="color:#aaa;">arrow keys also work. this is exactly renderColor() -- the same function the triplet task uses, on the same background color -- so what you measure here is what the study will show.</div>
     <div id="warning"></div>
 </div>
 <script>
@@ -104,6 +107,10 @@
 
     var TARGETS = JSON.parse(fetchTextSync("uw58_targets.json"));
     var CALIB = JSON.parse(fetchTextSync("calib_monitor" + monitorNum + ".json"));
+
+    // Same background the triplet task shows behind its squares -- read
+    // from the manifest, not recomputed (see COLOR_REFACTOR_BRIEF.md §4.4).
+    document.body.style.backgroundColor = "rgb(" + CALIB.background_rgb.join(",") + ")";
 
     // Deterministic order. Note: plain Object.keys(TARGETS) is NOT safe to
     // rely on here -- per the JS spec, an all-digit hex key with no leading
