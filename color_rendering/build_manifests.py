@@ -39,6 +39,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAL_DIR = os.path.join(REPO_ROOT, "calibration_files")
 COLOR_DIR = os.path.join(REPO_ROOT, "color_rendering")
 CATEGORY_DIR = os.path.join(REPO_ROOT, "category")
+LEGACY_DIR = os.path.join(REPO_ROOT, "legacy")
 
 MONITORS = [
     {"num": 1, "label": "near_door", "file": "calibration_monitor_1_near_door.html",
@@ -257,6 +258,23 @@ def main():
     else:
         print("skipped category_targets.data.js: {} not found".format(
             os.path.relpath(category_targets_path, REPO_ROOT)))
+
+    # legacy/as_run_colors.json (ADJUSTED_COLORS_1/_2, moved verbatim per
+    # legacy/README.md -- do not edit or regenerate its content) also gets a
+    # .data.js sibling, so measure.html can show what the first 25
+    # participants actually saw under the old, incorrectly-calibrated
+    # standard-sRGB pipeline, next to what the corrected gun pipeline renders
+    # now.
+    as_run_colors_path = os.path.join(LEGACY_DIR, "as_run_colors.json")
+    if os.path.exists(as_run_colors_path):
+        with open(as_run_colors_path) as f:
+            as_run_colors = json.load(f)
+        as_run_js_path = os.path.join(LEGACY_DIR, "as_run_colors.data.js")
+        write_data_js("AS_RUN_COLORS", as_run_colors, as_run_js_path)
+        print("wrote {}".format(os.path.relpath(as_run_js_path, REPO_ROOT)))
+    else:
+        print("skipped as_run_colors.data.js: {} not found".format(
+            os.path.relpath(as_run_colors_path, REPO_ROOT)))
 
 
 if __name__ == "__main__":

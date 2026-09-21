@@ -8,6 +8,7 @@
 <script src="calib_monitor1.data.js"></script>
 <script src="calib_monitor2.data.js"></script>
 <script src="../category/category_targets.data.js"></script>
+<script src="../legacy/as_run_colors.data.js"></script>
 <style>
     html, body {
         margin: 0;
@@ -76,6 +77,7 @@
     <div class="row">
         <button id="btn-mode-uw58">UW58 (58)</button>
         <button id="btn-mode-category">Category (20 random)</button>
+        <button id="btn-mode-legacy">Legacy as-run (58)</button>
         <button id="btn-fullscreen">fullscreen</button>
     </div>
     <div class="row"><span class="label">monitor:</span> <span class="value" id="f-monitor"></span></div>
@@ -94,6 +96,7 @@
     </div>
     <div class="row" id="mode-note-uw58" style="color:#aaa;">arrow keys also work. this is exactly renderColor() -- the same function the triplet task uses, on the same background color -- so what you measure here is what the study will show.</div>
     <div class="row" id="mode-note-category" style="color:#aaa; display:none;">arrow keys also work. this is exactly categoryCssColorFor()'s render path (renderColor() with the clamp-to-gamut policy, never black) -- the same function the categorization task uses.</div>
+    <div class="row" id="mode-note-legacy" style="color:#aaa; display:none;">arrow keys also work. these are the static hex codes from legacy/as_run_colors.json (ADJUSTED_COLORS_1/_2) -- the OLD, incorrectly-calibrated standard-sRGB pipeline that was actually shown to the first 25 participants (20 on monitor 1, 5 on monitor 2), before the gun-pipeline fix. Not run through renderColor() at all -- these are shown verbatim.</div>
     <div class="row" style="color:#aaa;">press <strong>f</strong> or the fullscreen button to enter/exit fullscreen (hides browser chrome so it doesn't affect what the spectroradiometer sees).</div>
     <div id="warning"></div>
 </div>
@@ -166,7 +169,33 @@
         });
     }
 
-    var MODE_UW58 = "uw58", MODE_CATEGORY = "category";
+    function hexToRgb(hex) {
+        return [
+            parseInt(hex.substr(0, 2), 16),
+            parseInt(hex.substr(2, 2), 16),
+            parseInt(hex.substr(4, 2), 16)
+        ];
+    }
+
+    // The 58 hex codes actually shown to the first 25 participants (20 on
+    // monitor 1, 5 on monitor 2) via the OLD standard-sRGB pipeline, before
+    // this refactor -- legacy/as_run_colors.json, moved verbatim out of
+    // index.html (see legacy/README.md). Displayed as-is, with NO call to
+    // renderColor() -- there's no xyY to feed it; these are the final device
+    // RGB values themselves, not a target to render.
+    function legacyItems() {
+        var table = (monitorNum === 2) ? AS_RUN_COLORS.ADJUSTED_COLORS_2 : AS_RUN_COLORS.ADJUSTED_COLORS_1;
+        return Object.keys(table).sort().map(function (identity) {
+            return {
+                identity: identity,
+                label: identity,
+                legacyHex: table[identity],
+                legacy: true
+            };
+        });
+    }
+
+    var MODE_UW58 = "uw58", MODE_CATEGORY = "category", MODE_LEGACY = "legacy";
     var mode = MODE_UW58;
     var items = uw58Items();
     var idx = 0;
@@ -190,32 +219,36 @@
     var fRawRgb = document.getElementById("f-raw-rgb");
     var btnModeUw58 = document.getElementById("btn-mode-uw58");
     var btnModeCategory = document.getElementById("btn-mode-category");
+    var btnModeLegacy = document.getElementById("btn-mode-legacy");
     var btnReroll = document.getElementById("btn-reroll");
     var btnFullscreen = document.getElementById("btn-fullscreen");
     var modeNoteUw58 = document.getElementById("mode-note-uw58");
     var modeNoteCategory = document.getElementById("mode-note-category");
+    var modeNoteLegacy = document.getElementById("mode-note-legacy");
 
     fMonitor.textContent = monitorNum + " (" + (CALIB.label || "") + ")";
 
     function setMode(newMode) {
         mode = newMode;
         idx = 0;
+
+        var buttons = { uw58: btnModeUw58, category: btnModeCategory, legacy: btnModeLegacy };
+        var notes = { uw58: modeNoteUw58, category: modeNoteCategory, legacy: modeNoteLegacy };
+        Object.keys(buttons).forEach(function (m) {
+            buttons[m].className = (m === mode) ? "active" : "";
+            notes[m].style.display = (m === mode) ? "" : "none";
+        });
+        btnReroll.style.display = (mode === MODE_CATEGORY) ? "" : "none";
+
         if (mode === MODE_CATEGORY) {
             items = sampleCategoryItems(20);
             fTitle.textContent = "Category color measurement viewer";
-            btnModeCategory.className = "active";
-            btnModeUw58.className = "";
-            btnReroll.style.display = "";
-            modeNoteUw58.style.display = "none";
-            modeNoteCategory.style.display = "";
+        } else if (mode === MODE_LEGACY) {
+            items = legacyItems();
+            fTitle.textContent = "Legacy as-run (miscalibrated) UW58 viewer";
         } else {
             items = uw58Items();
             fTitle.textContent = "UW58 color measurement viewer";
-            btnModeUw58.className = "active";
-            btnModeCategory.className = "";
-            btnReroll.style.display = "none";
-            modeNoteUw58.style.display = "";
-            modeNoteCategory.style.display = "none";
         }
         render();
     }
@@ -223,7 +256,9 @@
     function render() {
         var item = items[idx];
         var rgb, clampInfo = null;
-        if (item.clampToGamut) {
+        if (item.legacy) {
+            rgb = hexToRgb(item.legacyHex);
+        } else if (item.clampToGamut) {
             clampInfo = renderColor(item.target, CALIB, item.identity, { clampToGamut: true });
             rgb = clampInfo.rgb;
         } else {
@@ -235,12 +270,16 @@
         fIndex.textContent = (idx + 1) + " / " + items.length;
         fIdentity.textContent = item.label;
 
-        var adj = (CALIB.adjustments && CALIB.adjustments[item.identity]) || { dx: 0, dy: 0, dY: 0 };
-        var off = CALIB.global_offset || { x: 0, y: 0, Y: 0 };
-        var x = item.target.x + adj.dx + off.x;
-        var y = item.target.y + adj.dy + off.y;
-        var Y = item.target.Y + adj.dY + off.Y;
-        fTarget.textContent = "x=" + x.toFixed(4) + "  y=" + y.toFixed(4) + "  Y=" + Y.toFixed(2);
+        if (item.legacy) {
+            fTarget.textContent = "n/a -- legacy sRGB hex table, no canonical xyY target";
+        } else {
+            var adj = (CALIB.adjustments && CALIB.adjustments[item.identity]) || { dx: 0, dy: 0, dY: 0 };
+            var off = CALIB.global_offset || { x: 0, y: 0, Y: 0 };
+            var x = item.target.x + adj.dx + off.x;
+            var y = item.target.y + adj.dy + off.y;
+            var Y = item.target.Y + adj.dY + off.Y;
+            fTarget.textContent = "x=" + x.toFixed(4) + "  y=" + y.toFixed(4) + "  Y=" + Y.toFixed(2);
+        }
 
         fRgb.textContent = css + "  (#" + rgb.map(function (v) {
             return ("0" + v.toString(16).toUpperCase()).slice(-2);
@@ -301,6 +340,7 @@
     btnReroll.addEventListener("click", function () { items = sampleCategoryItems(20); idx = 0; render(); });
     btnModeUw58.addEventListener("click", function () { setMode(MODE_UW58); });
     btnModeCategory.addEventListener("click", function () { setMode(MODE_CATEGORY); });
+    btnModeLegacy.addEventListener("click", function () { setMode(MODE_LEGACY); });
     btnFullscreen.addEventListener("click", toggleFullscreen);
     document.addEventListener("keydown", function (e) {
         if (e.key === "ArrowRight") next();
