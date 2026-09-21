@@ -22,11 +22,7 @@
     <script src ="checkTrials.json"></script>
     <script src ="color_rendering/renderColor.js"></script>
     <script src ="color_rendering/self_test.js"></script>
-    <script src ="categoryStimuli1.js"></script>
-    <script src ="categoryStimuli2.js"></script>
     <script src ="practiceCatStimuli.js"></script>
-    <script src ="unambiguousCatStimuli1.js"></script>
-    <script src ="unambiguousCatStimuli2.js"></script>
     <script src ="validationPicked.json"></script>
     <script src ="validationRandom.json"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
@@ -153,11 +149,34 @@
     document.body.style.backgroundColor =
         "rgb(" + CALIB.background_rgb.join(",") + ")";
 
-    // pick the monitor-specific stimulus sets.
-    // categoryStimuli1.js / unambiguousCatStimuli1.js define categoryStims / unambiguousCatStims (monitor 1).
-    // categoryStimuli2.js / unambiguousCatStimuli2.js define categoryStims2 / unambiguousCatStims2 (monitor 2).
-    var categoryStims       = (monitorNum === 2) ? categoryStims2       : categoryStims;
-    var unambiguousCatStims = (monitorNum === 2) ? unambiguousCatStims2 : unambiguousCatStims;
+    // ============================================================
+    //  CATEGORIZATION TASK: canonical targets (category/category_targets.json),
+    //  rendered through the SAME renderColor()/CALIB already loaded above --
+    //  there is still exactly one copy of the color math. Centers reuse the
+    //  UW58 per-color adjustment (row.residual_key === the UW58 identity hex);
+    //  the 8 surrounding grid colors per group are new xyY targets with no
+    //  separate per-color adjustment (row.residual_key === null), so
+    //  renderColor() applies zero per-color adjustment for those automatically.
+    //  The practice block is unaffected -- it stays static PNGs (see
+    //  practiceCatStimuli.js) since it doesn't need per-monitor calibration.
+    // ============================================================
+    var CATEGORY_TARGETS = JSON.parse(fetchTextSync("category/category_targets.json"));
+    var CATEGORY_TARGETS_BY_ID = {};
+    CATEGORY_TARGETS.forEach(function (row) { CATEGORY_TARGETS_BY_ID[row.id] = row; });
+
+    function categoryCssColorFor(id) {
+        var row = CATEGORY_TARGETS_BY_ID[id];
+        if (!row) {
+            console.warn("categoryCssColorFor: unknown category id " + id);
+            return "rgb(0,0,0)";
+        }
+        var rgb = renderColor({ x: row.x, y: row.y, Y: row.Y }, CALIB, row.residual_key);
+        return "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+    }
+    function categorySquare(id) {
+        return '<div style="width:150px;height:150px;margin:auto;background-color:' +
+               categoryCssColorFor(id) + ';"></div>';
+    }
 
 
     var filename = "category_" + monitorNum + "_" + secret_code + ".csv"; // CHANGE THIS (file name)
@@ -431,6 +450,9 @@ timeline.push(instructions_consent_pre_loop);
     }
 
     // ---- Feedback-part trial ----
+    // Practice block only -- static PNGs (category/img_cat_practice/), no
+    // per-monitor calibration needed. See cat_trial_feedback_rendered below
+    // for the main/unambiguous blocks, which render via renderColor().
     var cat_trial_feedback = {
         type: jsPsychImageKeyboardResponse,
         stimulus: jsPsych.timelineVariable('catStims'),
@@ -438,6 +460,23 @@ timeline.push(instructions_consent_pre_loop);
         stimulus_width: 150,
         choices: ['ArrowLeft', 'ArrowRight'],
         //prompt: "<p style='margin-top:20px;'>Press the <strong>left</strong> or <strong>right</strong> arrow key to categorize this color.</p>",
+        on_finish: function(data) {
+            var correct_resp = jsPsych.timelineVariable('correct_response', true);
+            data.correct_response = correct_resp;
+            data.color_group      = jsPsych.timelineVariable('color_group', true);
+            data.block            = jsPsych.timelineVariable('block', true);
+            data.correct          = ((data.response || '').toLowerCase() === correct_resp);
+            data.task             = 'categorization_feedback';
+        }
+    };
+
+    // Main ("test") and unambiguous blocks -- catStims is a
+    // category/category_targets.json id, rendered at runtime via
+    // categorySquare()/renderColor() instead of an <img> tag.
+    var cat_trial_feedback_rendered = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function () { return categorySquare(jsPsych.timelineVariable('catStims')); },
+        choices: ['ArrowLeft', 'ArrowRight'],
         on_finish: function(data) {
             var correct_resp = jsPsych.timelineVariable('correct_response', true);
             data.correct_response = correct_resp;
@@ -503,6 +542,8 @@ timeline.push(instructions_consent_pre_loop);
     };
 
     // ---- No-feedback-part trial ----
+    // Practice block only -- see cat_trial_nofeedback_rendered below for
+    // the main/unambiguous blocks.
     var cat_trial_nofeedback = {
         type: jsPsychImageKeyboardResponse,
         stimulus: jsPsych.timelineVariable('catStims'),
@@ -518,39 +559,51 @@ timeline.push(instructions_consent_pre_loop);
         }
     };
 
+    var cat_trial_nofeedback_rendered = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function () { return categorySquare(jsPsych.timelineVariable('catStims')); },
+        choices: ['ArrowLeft', 'ArrowRight'],
+        on_finish: function(data) {
+            data.color_group = jsPsych.timelineVariable('color_group', true);
+            data.block       = jsPsych.timelineVariable('block', true);
+            data.correct     = null;
+            data.task        = 'categorization_nofeedback';
+        }
+    };
+
 
   //-----------------------------------------categorization task---------------------------------------
 
 
 
   async function initExperiment() {
-    const allimg_triplets = categoryStims;
-
+    // Only the practice block still uses real image files -- the main
+    // ("test") and unambiguous blocks are rendered at runtime from
+    // CATEGORY_TARGETS, so there's nothing to preload for them.
     var preload_category = {
         type: jsPsychPreload,
         auto_preload: true,
-        images: categoryStims.concat(practiceCatStims).concat(unambiguousCatStims),
+        images: practiceCatStims,
         show_progress_bar: true,
         message: "Loading experiment files...",
         error_message: "Oops! There's a problem loading files. Please refresh the page to try again."
     };
 
-    // Main-block images (img_cat/)
+    // Main ("test") block rows, by group (1..16). Returns
+    // category/category_targets.json rows (9 per group: center + 8).
     function getGroup(num) {
-        return allimg_triplets
-            .filter(name => name.includes('color' + num + '_'));
+        return CATEGORY_TARGETS.filter(function (r) { return r.set === 'test' && r.group === num; });
     }
 
-    // Practice-block images (img_cat_practice/)
+    // Practice-block images (category/img_cat_practice/) -- unchanged, still real files.
     function getPracticeGroup(num) {
         return practiceCatStims
             .filter(name => name.includes('color' + num + '_'));
     }
 
-    // Unambiguous-block images (img_cat_unambiguous/)
+    // Unambiguous-block rows, by group (1..8).
     function getUnambiguousGroup(num) {
-        return unambiguousCatStims
-            .filter(name => name.includes('color' + num + '_'));
+        return CATEGORY_TARGETS.filter(function (r) { return r.set === 'unambiguous' && r.group === num; });
     }
 
     // ---- Practice block ----
@@ -644,7 +697,7 @@ timeline.push(instructions_consent_pre_loop);
         var fbStimuli = [];
         getGroup(fbLeft).forEach(function(img_cat) {
             fbStimuli.push({
-                catStims: img_cat,
+                catStims: img_cat.id,
                 correct_response: 'arrowleft',
                 color_group: 'color' + fbLeft,
                 block: blockNum
@@ -652,7 +705,7 @@ timeline.push(instructions_consent_pre_loop);
         });
         getGroup(fbRight).forEach(function(img_cat) {
             fbStimuli.push({
-                catStims: img_cat,
+                catStims: img_cat.id,
                 correct_response: 'arrowright',
                 color_group: 'color' + fbRight,
                 block: blockNum
@@ -662,27 +715,27 @@ timeline.push(instructions_consent_pre_loop);
         var nofbStimuli = [];
         getGroup(nofbA).forEach(function(img_cat) {
             nofbStimuli.push({
-                catStims: img_cat,
+                catStims: img_cat.id,
                 color_group: 'color' + nofbA,
                 block: blockNum
             });
         });
         getGroup(nofbB).forEach(function(img_cat) {
             nofbStimuli.push({
-                catStims: img_cat,
+                catStims: img_cat.id,
                 color_group: 'color' + nofbB,
                 block: blockNum
             });
         });
 
         var feedback_procedure = {
-            timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
+            timeline: [fixation, cat_trial_feedback_rendered, cat_feedback_node_wrong, cat_feedback_node_corr],
             timeline_variables: fbStimuli,
             randomize_order: true
         };
 
         var nofeedback_procedure = {
-            timeline: [fixation, cat_trial_nofeedback],
+            timeline: [fixation, cat_trial_nofeedback_rendered],
             timeline_variables: nofbStimuli,
             randomize_order: true
         };
@@ -715,7 +768,7 @@ timeline.push(instructions_consent_pre_loop);
         var fbStimuli = [];
         getUnambiguousGroup(fbLeft).forEach(function(img_cat) {
             fbStimuli.push({
-                catStims: img_cat,
+                catStims: img_cat.id,
                 correct_response: 'arrowleft',
                 color_group: 'color' + fbLeft,
                 block: blockNum
@@ -723,7 +776,7 @@ timeline.push(instructions_consent_pre_loop);
         });
         getUnambiguousGroup(fbRight).forEach(function(img_cat) {
             fbStimuli.push({
-                catStims: img_cat,
+                catStims: img_cat.id,
                 correct_response: 'arrowright',
                 color_group: 'color' + fbRight,
                 block: blockNum
@@ -733,27 +786,27 @@ timeline.push(instructions_consent_pre_loop);
         var nofbStimuli = [];
         getUnambiguousGroup(nofbA).forEach(function(img_cat) {
             nofbStimuli.push({
-                catStims: img_cat,
+                catStims: img_cat.id,
                 color_group: 'color' + nofbA,
                 block: blockNum
             });
         });
         getUnambiguousGroup(nofbB).forEach(function(img_cat) {
             nofbStimuli.push({
-                catStims: img_cat,
+                catStims: img_cat.id,
                 color_group: 'color' + nofbB,
                 block: blockNum
             });
         });
 
         var feedback_procedure = {
-            timeline: [fixation, cat_trial_feedback, cat_feedback_node_wrong, cat_feedback_node_corr],
+            timeline: [fixation, cat_trial_feedback_rendered, cat_feedback_node_wrong, cat_feedback_node_corr],
             timeline_variables: fbStimuli,
             randomize_order: true
         };
 
         var nofeedback_procedure = {
-            timeline: [fixation, cat_trial_nofeedback],
+            timeline: [fixation, cat_trial_nofeedback_rendered],
             timeline_variables: nofbStimuli,
             randomize_order: true
         };
