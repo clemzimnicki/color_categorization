@@ -7,6 +7,7 @@
 <script src="uw58_targets.data.js"></script>
 <script src="calib_monitor1.data.js"></script>
 <script src="calib_monitor2.data.js"></script>
+<script src="../category/category_targets.data.js"></script>
 <style>
     html, body {
         margin: 0;
@@ -61,22 +62,37 @@
         font-size: 12px;
         display: none;
     }
+    #panel button.active {
+        background: rgb(120,120,220);
+        color: #fff;
+    }
+    #row-clamp.clamped .value { color: #ff8a65; }
 </style>
 </head>
 <body>
 <div id="square"></div>
 <div id="panel">
-    <h1>UW58 color measurement viewer</h1>
+    <h1 id="f-title">UW58 color measurement viewer</h1>
+    <div class="row">
+        <button id="btn-mode-uw58">UW58 (58)</button>
+        <button id="btn-mode-category">Category (20 random)</button>
+    </div>
     <div class="row"><span class="label">monitor:</span> <span class="value" id="f-monitor"></span></div>
-    <div class="row"><span class="label">identity (n/58):</span> <span class="value" id="f-index"></span></div>
-    <div class="row"><span class="label">identity hex:</span> <span class="value" id="f-identity"></span></div>
+    <div class="row"><span class="label">item:</span> <span class="value" id="f-index"></span></div>
+    <div class="row"><span class="label">identity / id:</span> <span class="value" id="f-identity"></span></div>
     <div class="row"><span class="label">adjusted target xyY:</span><br><span class="value" id="f-target"></span></div>
     <div class="row"><span class="label">renderColor() rgb:</span> <span class="value" id="f-rgb"></span></div>
+    <div class="row" id="row-clamp" style="display:none;">
+        <span class="label">clamped:</span> <span class="value" id="f-clamped"></span><br>
+        <span class="label">pre-clamp rgb:</span> <span class="value" id="f-raw-rgb"></span>
+    </div>
     <div class="row">
         <button id="btn-prev">&larr; prev</button>
         <button id="btn-next">next &rarr;</button>
+        <button id="btn-reroll" style="display:none;">reroll 20</button>
     </div>
-    <div class="row" style="color:#aaa;">arrow keys also work. this is exactly renderColor() -- the same function the triplet task uses, on the same background color -- so what you measure here is what the study will show.</div>
+    <div class="row" id="mode-note-uw58" style="color:#aaa;">arrow keys also work. this is exactly renderColor() -- the same function the triplet task uses, on the same background color -- so what you measure here is what the study will show.</div>
+    <div class="row" id="mode-note-category" style="color:#aaa; display:none;">arrow keys also work. this is exactly categoryCssColorFor()'s render path (renderColor() with the clamp-to-gamut policy, never black) -- the same function the categorization task uses.</div>
     <div id="warning"></div>
 </div>
 <script>
@@ -111,7 +127,47 @@
     // array index and silently reordered to the front ahead of the other
     // 54 string keys, regardless of insertion order. Sorting explicitly
     // sidesteps that.
-    var identities = Object.keys(TARGETS).sort();
+    var uw58Identities = Object.keys(TARGETS).sort();
+
+    // items: a uniform list the render()/nav code walks over, regardless of
+    // mode. Each entry carries everything render() needs to reproduce
+    // exactly what the real experiment would show for that stimulus.
+    function uw58Items() {
+        return uw58Identities.map(function (identity) {
+            return {
+                identity: identity,
+                target: TARGETS[identity],
+                label: identity,
+                clampToGamut: false // triplet task's black-out policy
+            };
+        });
+    }
+
+    // 20 random category rows (with replacement across reroll, not within
+    // one draw) from category/category_targets.json (centers + jittered
+    // satellites, test + unambiguous sets) -- rendered via the SAME
+    // clamp-to-gamut policy categoryCssColorFor() uses in index.html, so
+    // what's shown here is what the categorization task would show.
+    function sampleCategoryItems(n) {
+        var pool = CATEGORY_TARGETS.slice();
+        for (var i = pool.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+        }
+        return pool.slice(0, n).map(function (row) {
+            return {
+                identity: row.residual_key, // null for satellites -- renderColor() then applies zero per-color adjustment
+                target: { x: row.x, y: row.y, Y: row.Y },
+                label: row.id + " (group " + row.group + ", " + row.label + ", " + row.set + ")",
+                clampToGamut: true
+            };
+        });
+    }
+
+    var MODE_UW58 = "uw58", MODE_CATEGORY = "category";
+    var mode = MODE_UW58;
+    var items = uw58Items();
+    var idx = 0;
 
     var warningEl = document.getElementById("warning");
     warningEl.style.display = "block";
@@ -120,49 +176,99 @@
         "effect on the rendered color -- it only feeds self_test.js's pass/fail check in " +
         "the real experiment.";
 
-    var idx = 0;
     var squareEl = document.getElementById("square");
+    var fTitle = document.getElementById("f-title");
     var fMonitor = document.getElementById("f-monitor");
     var fIndex = document.getElementById("f-index");
     var fIdentity = document.getElementById("f-identity");
     var fTarget = document.getElementById("f-target");
     var fRgb = document.getElementById("f-rgb");
+    var rowClamp = document.getElementById("row-clamp");
+    var fClamped = document.getElementById("f-clamped");
+    var fRawRgb = document.getElementById("f-raw-rgb");
+    var btnModeUw58 = document.getElementById("btn-mode-uw58");
+    var btnModeCategory = document.getElementById("btn-mode-category");
+    var btnReroll = document.getElementById("btn-reroll");
+    var modeNoteUw58 = document.getElementById("mode-note-uw58");
+    var modeNoteCategory = document.getElementById("mode-note-category");
 
     fMonitor.textContent = monitorNum + " (" + (CALIB.label || "") + ")";
 
+    function setMode(newMode) {
+        mode = newMode;
+        idx = 0;
+        if (mode === MODE_CATEGORY) {
+            items = sampleCategoryItems(20);
+            fTitle.textContent = "Category color measurement viewer";
+            btnModeCategory.className = "active";
+            btnModeUw58.className = "";
+            btnReroll.style.display = "";
+            modeNoteUw58.style.display = "none";
+            modeNoteCategory.style.display = "";
+        } else {
+            items = uw58Items();
+            fTitle.textContent = "UW58 color measurement viewer";
+            btnModeUw58.className = "active";
+            btnModeCategory.className = "";
+            btnReroll.style.display = "none";
+            modeNoteUw58.style.display = "";
+            modeNoteCategory.style.display = "none";
+        }
+        render();
+    }
+
     function render() {
-        var identity = identities[idx];
-        var target = TARGETS[identity];
-        var rgb = renderColor(target, CALIB, identity);
+        var item = items[idx];
+        var rgb, clampInfo = null;
+        if (item.clampToGamut) {
+            clampInfo = renderColor(item.target, CALIB, item.identity, { clampToGamut: true });
+            rgb = clampInfo.rgb;
+        } else {
+            rgb = renderColor(item.target, CALIB, item.identity);
+        }
         var css = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
 
         squareEl.style.backgroundColor = css;
-        fIndex.textContent = (idx + 1) + " / " + identities.length;
-        fIdentity.textContent = identity;
+        fIndex.textContent = (idx + 1) + " / " + items.length;
+        fIdentity.textContent = item.label;
 
-        var adj = (CALIB.adjustments && CALIB.adjustments[identity]) || { dx: 0, dy: 0, dY: 0 };
+        var adj = (CALIB.adjustments && CALIB.adjustments[item.identity]) || { dx: 0, dy: 0, dY: 0 };
         var off = CALIB.global_offset || { x: 0, y: 0, Y: 0 };
-        var x = target.x + adj.dx + off.x;
-        var y = target.y + adj.dy + off.y;
-        var Y = target.Y + adj.dY + off.Y;
+        var x = item.target.x + adj.dx + off.x;
+        var y = item.target.y + adj.dy + off.y;
+        var Y = item.target.Y + adj.dY + off.Y;
         fTarget.textContent = "x=" + x.toFixed(4) + "  y=" + y.toFixed(4) + "  Y=" + Y.toFixed(2);
 
         fRgb.textContent = css + "  (#" + rgb.map(function (v) {
             return ("0" + v.toString(16).toUpperCase()).slice(-2);
         }).join("") + ")";
+
+        if (clampInfo) {
+            rowClamp.style.display = "";
+            rowClamp.className = clampInfo.inGamut ? "row" : "row clamped";
+            fClamped.textContent = clampInfo.inGamut ? "no" : "YES";
+            fRawRgb.textContent = "(" + clampInfo.rawRgb.map(function (v) {
+                return v.toFixed(1);
+            }).join(", ") + ")";
+        } else {
+            rowClamp.style.display = "none";
+        }
     }
 
-    function next() { idx = (idx + 1) % identities.length; render(); }
-    function prev() { idx = (idx - 1 + identities.length) % identities.length; render(); }
+    function next() { idx = (idx + 1) % items.length; render(); }
+    function prev() { idx = (idx - 1 + items.length) % items.length; render(); }
 
     document.getElementById("btn-next").addEventListener("click", next);
     document.getElementById("btn-prev").addEventListener("click", prev);
+    btnReroll.addEventListener("click", function () { items = sampleCategoryItems(20); idx = 0; render(); });
+    btnModeUw58.addEventListener("click", function () { setMode(MODE_UW58); });
+    btnModeCategory.addEventListener("click", function () { setMode(MODE_CATEGORY); });
     document.addEventListener("keydown", function (e) {
         if (e.key === "ArrowRight") next();
         if (e.key === "ArrowLeft") prev();
     });
 
-    render();
+    setMode(MODE_UW58);
 </script>
 </body>
 </html>

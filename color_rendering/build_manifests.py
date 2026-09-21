@@ -38,6 +38,7 @@ import sys
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAL_DIR = os.path.join(REPO_ROOT, "calibration_files")
 COLOR_DIR = os.path.join(REPO_ROOT, "color_rendering")
+CATEGORY_DIR = os.path.join(REPO_ROOT, "category")
 
 MONITORS = [
     {"num": 1, "label": "near_door", "file": "calibration_monitor_1_near_door.html",
@@ -240,6 +241,22 @@ def main():
             json.dump(expected_rgb, f, indent=2, sort_keys=True)
             f.write("\n")
         print("wrote {}".format(os.path.relpath(fixture_path, REPO_ROOT)))
+
+    # category/category_targets.json is not built by this script (it has its
+    # own, separate source) -- just re-emit its .data.js sibling, same as the
+    # UW58/calib pair above, so color_rendering/measure.html can load it with
+    # a plain <script src> tag under file://. Re-run this script after
+    # category_targets.json changes to keep the sibling in sync.
+    category_targets_path = os.path.join(CATEGORY_DIR, "category_targets.json")
+    if os.path.exists(category_targets_path):
+        with open(category_targets_path) as f:
+            category_targets = json.load(f)
+        category_js_path = os.path.join(CATEGORY_DIR, "category_targets.data.js")
+        write_data_js("CATEGORY_TARGETS", category_targets, category_js_path)
+        print("wrote {}".format(os.path.relpath(category_js_path, REPO_ROOT)))
+    else:
+        print("skipped category_targets.data.js: {} not found".format(
+            os.path.relpath(category_targets_path, REPO_ROOT)))
 
 
 if __name__ == "__main__":

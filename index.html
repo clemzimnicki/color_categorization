@@ -164,18 +164,50 @@
     var CATEGORY_TARGETS_BY_ID = {};
     CATEGORY_TARGETS.forEach(function (row) { CATEGORY_TARGETS_BY_ID[row.id] = row; });
 
+    // Out-of-gamut category colors are clamped per channel (never rendered
+    // black -- unlike the triplet task, see COLOR_REFACTOR_BRIEF.md). Each
+    // call records whether it clamped and the pre-clamp RGB in
+    // LAST_CATEGORY_RENDER so the trial's on_finish handler can attach it to
+    // the saved data, letting satellites that clamp on one monitor but not
+    // the other be found in analysis.
+    var LAST_CATEGORY_RENDER = null;
     function categoryCssColorFor(id) {
         var row = CATEGORY_TARGETS_BY_ID[id];
         if (!row) {
             console.warn("categoryCssColorFor: unknown category id " + id);
+            LAST_CATEGORY_RENDER = null;
             return "rgb(0,0,0)";
         }
-        var rgb = renderColor({ x: row.x, y: row.y, Y: row.Y }, CALIB, row.residual_key);
+        var rendered = renderColor(
+            { x: row.x, y: row.y, Y: row.Y }, CALIB, row.residual_key, { clampToGamut: true }
+        );
+        LAST_CATEGORY_RENDER = {
+            id: id,
+            clamped: !rendered.inGamut,
+            rawRgb: rendered.rawRgb
+        };
+        if (!rendered.inGamut) {
+            console.log(
+                "categoryCssColorFor: " + id + " clamped, pre-clamp rgb=(" +
+                rendered.rawRgb.join(",") + ") -> (" + rendered.rgb.join(",") + ")"
+            );
+        }
+        var rgb = rendered.rgb;
         return "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
     }
     function categorySquare(id) {
         return '<div style="width:150px;height:150px;margin:auto;background-color:' +
                categoryCssColorFor(id) + ';"></div>';
+    }
+    // Attach the clamp info recorded by the most recent categorySquare()
+    // call to a trial's saved data. Called from on_finish, right after
+    // jsPsych's stimulus function (which called categorySquare()) has run
+    // for this trial.
+    function attachCategoryRenderData(data) {
+        if (LAST_CATEGORY_RENDER) {
+            data.render_clamped = LAST_CATEGORY_RENDER.clamped;
+            data.render_raw_rgb = LAST_CATEGORY_RENDER.rawRgb.join(",");
+        }
     }
 
 
@@ -484,6 +516,7 @@ timeline.push(instructions_consent_pre_loop);
             data.block            = jsPsych.timelineVariable('block', true);
             data.correct          = ((data.response || '').toLowerCase() === correct_resp);
             data.task             = 'categorization_feedback';
+            attachCategoryRenderData(data);
         }
     };
 
@@ -568,6 +601,7 @@ timeline.push(instructions_consent_pre_loop);
             data.block       = jsPsych.timelineVariable('block', true);
             data.correct     = null;
             data.task        = 'categorization_nofeedback';
+            attachCategoryRenderData(data);
         }
     };
 
