@@ -76,6 +76,7 @@
     <div class="row">
         <button id="btn-mode-uw58">UW58 (58)</button>
         <button id="btn-mode-category">Category (20 random)</button>
+        <button id="btn-fullscreen">fullscreen</button>
     </div>
     <div class="row"><span class="label">monitor:</span> <span class="value" id="f-monitor"></span></div>
     <div class="row"><span class="label">item:</span> <span class="value" id="f-index"></span></div>
@@ -93,6 +94,7 @@
     </div>
     <div class="row" id="mode-note-uw58" style="color:#aaa;">arrow keys also work. this is exactly renderColor() -- the same function the triplet task uses, on the same background color -- so what you measure here is what the study will show.</div>
     <div class="row" id="mode-note-category" style="color:#aaa; display:none;">arrow keys also work. this is exactly categoryCssColorFor()'s render path (renderColor() with the clamp-to-gamut policy, never black) -- the same function the categorization task uses.</div>
+    <div class="row" style="color:#aaa;">press <strong>f</strong> or the fullscreen button to enter/exit fullscreen (hides browser chrome so it doesn't affect what the spectroradiometer sees).</div>
     <div id="warning"></div>
 </div>
 <script>
@@ -189,6 +191,7 @@
     var btnModeUw58 = document.getElementById("btn-mode-uw58");
     var btnModeCategory = document.getElementById("btn-mode-category");
     var btnReroll = document.getElementById("btn-reroll");
+    var btnFullscreen = document.getElementById("btn-fullscreen");
     var modeNoteUw58 = document.getElementById("mode-note-uw58");
     var modeNoteCategory = document.getElementById("mode-note-category");
 
@@ -258,17 +261,59 @@
     function next() { idx = (idx + 1) % items.length; render(); }
     function prev() { idx = (idx - 1 + items.length) % items.length; render(); }
 
+    // Vendor-prefix fallbacks (older Safari in particular) so this works on
+    // whatever browser the measurement machine happens to have.
+    function isFullscreen() {
+        return !!(document.fullscreenElement || document.webkitFullscreenElement);
+    }
+    function toggleFullscreen() {
+        if (isFullscreen()) {
+            (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+            return;
+        }
+        var el = document.documentElement;
+        var request = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (!request) {
+            window.alert("Fullscreen API not available in this browser.");
+            return;
+        }
+        // Browsers require a user gesture for this; it's always called from
+        // a click/keydown handler here, so it succeeds. webkitRequestFullscreen
+        // (older Safari) doesn't return a promise, unlike the standard method.
+        try {
+            var result = request.call(el);
+            if (result && result.catch) {
+                result.catch(function (err) { console.warn("requestFullscreen failed:", err); });
+            }
+        } catch (err) {
+            console.warn("requestFullscreen failed:", err);
+        }
+    }
+    document.addEventListener("fullscreenchange", function () {
+        btnFullscreen.textContent = isFullscreen() ? "exit fullscreen" : "fullscreen";
+    });
+    document.addEventListener("webkitfullscreenchange", function () {
+        btnFullscreen.textContent = isFullscreen() ? "exit fullscreen" : "fullscreen";
+    });
+
     document.getElementById("btn-next").addEventListener("click", next);
     document.getElementById("btn-prev").addEventListener("click", prev);
     btnReroll.addEventListener("click", function () { items = sampleCategoryItems(20); idx = 0; render(); });
     btnModeUw58.addEventListener("click", function () { setMode(MODE_UW58); });
     btnModeCategory.addEventListener("click", function () { setMode(MODE_CATEGORY); });
+    btnFullscreen.addEventListener("click", toggleFullscreen);
     document.addEventListener("keydown", function (e) {
         if (e.key === "ArrowRight") next();
         if (e.key === "ArrowLeft") prev();
+        if (e.key === "f" || e.key === "F") toggleFullscreen();
     });
 
     setMode(MODE_UW58);
+
+    // Best-effort: try to enter fullscreen right away, since dismissing the
+    // monitor-number prompt above counts as a user gesture in most browsers.
+    // Silently falls back to the button/'f' key if the browser disallows it.
+    toggleFullscreen();
 </script>
 </body>
 </html>
