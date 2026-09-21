@@ -96,7 +96,7 @@
     </div>
     <div class="row" id="mode-note-uw58" style="color:#aaa;">arrow keys also work. this is exactly renderColor() -- the same function the triplet task uses, on the same background color -- so what you measure here is what the study will show.</div>
     <div class="row" id="mode-note-category" style="color:#aaa; display:none;">arrow keys also work. this is exactly categoryCssColorFor()'s render path (renderColor() with the clamp-to-gamut policy, never black) -- the same function the categorization task uses.</div>
-    <div class="row" id="mode-note-legacy" style="color:#aaa; display:none;">arrow keys also work. these are the static hex codes from legacy/as_run_colors.json (ADJUSTED_COLORS_1/_2) -- the OLD, incorrectly-calibrated standard-sRGB pipeline that was actually shown to the first 25 participants (20 on monitor 1, 5 on monitor 2), before the gun-pipeline fix. Not run through renderColor() at all -- these are shown verbatim.</div>
+    <div class="row" id="mode-note-legacy" style="color:#aaa; display:none;">arrow keys also work. these are the static hex codes from legacy/as_run_colors.json (ADJUSTED_COLORS_1/_2) -- the OLD, incorrectly-calibrated standard-sRGB pipeline that was actually shown to the first 25 participants (20 on monitor 1, 5 on monitor 2), before the gun-pipeline fix. the RGB square is NOT run through renderColor() -- it's the legacy hex shown verbatim -- but the xyY target above is the same canonical target + adjustments the (buggy) old pipeline was aiming for.</div>
     <div class="row" style="color:#aaa;">press <strong>f</strong> or the fullscreen button to enter/exit fullscreen (hides browser chrome so it doesn't affect what the spectroradiometer sees).</div>
     <div id="warning"></div>
 </div>
@@ -181,13 +181,18 @@
     // monitor 1, 5 on monitor 2) via the OLD standard-sRGB pipeline, before
     // this refactor -- legacy/as_run_colors.json, moved verbatim out of
     // index.html (see legacy/README.md). Displayed as-is, with NO call to
-    // renderColor() -- there's no xyY to feed it; these are the final device
-    // RGB values themselves, not a target to render.
+    // renderColor() for the color itself (that's the buggy sRGB encoding we
+    // can't and shouldn't reproduce) -- but these identities share the SAME
+    // canonical xyY target and the SAME per-color adjustments as the
+    // corrected pipeline (the bug was only in the final xyY->RGB encoding
+    // step, not the target), so item.target here is TARGETS[identity], same
+    // as uw58Items().
     function legacyItems() {
         var table = (monitorNum === 2) ? AS_RUN_COLORS.ADJUSTED_COLORS_2 : AS_RUN_COLORS.ADJUSTED_COLORS_1;
         return Object.keys(table).sort().map(function (identity) {
             return {
                 identity: identity,
+                target: TARGETS[identity],
                 label: identity,
                 legacyHex: table[identity],
                 legacy: true
@@ -270,16 +275,13 @@
         fIndex.textContent = (idx + 1) + " / " + items.length;
         fIdentity.textContent = item.label;
 
-        if (item.legacy) {
-            fTarget.textContent = "n/a -- legacy sRGB hex table, no canonical xyY target";
-        } else {
-            var adj = (CALIB.adjustments && CALIB.adjustments[item.identity]) || { dx: 0, dy: 0, dY: 0 };
-            var off = CALIB.global_offset || { x: 0, y: 0, Y: 0 };
-            var x = item.target.x + adj.dx + off.x;
-            var y = item.target.y + adj.dy + off.y;
-            var Y = item.target.Y + adj.dY + off.Y;
-            fTarget.textContent = "x=" + x.toFixed(4) + "  y=" + y.toFixed(4) + "  Y=" + Y.toFixed(2);
-        }
+        var adj = (CALIB.adjustments && CALIB.adjustments[item.identity]) || { dx: 0, dy: 0, dY: 0 };
+        var off = CALIB.global_offset || { x: 0, y: 0, Y: 0 };
+        var x = item.target.x + adj.dx + off.x;
+        var y = item.target.y + adj.dy + off.y;
+        var Y = item.target.Y + adj.dY + off.Y;
+        fTarget.textContent = "x=" + x.toFixed(4) + "  y=" + y.toFixed(4) + "  Y=" + Y.toFixed(2) +
+            (item.legacy ? "  (target -- old pipeline mis-encoded this to RGB, shown at right)" : "");
 
         fRgb.textContent = css + "  (#" + rgb.map(function (v) {
             return ("0" + v.toString(16).toUpperCase()).slice(-2);
