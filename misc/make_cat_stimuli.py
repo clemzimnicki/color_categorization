@@ -26,6 +26,7 @@ JOBS = [
     #("img_cat_unambiguous_1", "unambiguousCatStims1", "unambiguousCatStimuli1.js"),
 ]
 
+
 #JOBS = [
 #    ("img_cat_1",             "categoryStims1",      "categoryStimuli1.js"),
 #    ("img_cat_unambiguous_1", "unambiguousCatStims1", "unambiguousCatStimuli1.js"),
