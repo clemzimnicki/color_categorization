@@ -83,7 +83,8 @@
     <div class="row"><span class="label">monitor:</span> <span class="value" id="f-monitor"></span></div>
     <div class="row"><span class="label">item:</span> <span class="value" id="f-index"></span></div>
     <div class="row"><span class="label">identity / id:</span> <span class="value" id="f-identity"></span></div>
-    <div class="row"><span class="label">adjusted target xyY:</span><br><span class="value" id="f-target"></span></div>
+    <div class="row"><span class="label">target xyY (what the meter should read):</span><br><span class="value" id="f-target"></span></div>
+    <div class="row" style="color:#aaa;"><span class="label">renderColor() input (target + calib adjustment + global offset):</span><br><span id="f-target-adj"></span></div>
     <div class="row"><span class="label">renderColor() rgb:</span> <span class="value" id="f-rgb"></span></div>
     <div class="row" id="row-clamp" style="display:none;">
         <span class="label">clamped:</span> <span class="value" id="f-clamped"></span><br>
@@ -96,7 +97,7 @@
     </div>
     <div class="row" id="mode-note-uw58" style="color:#aaa;">arrow keys also work. this is exactly renderColor() -- the same function the triplet task uses, on the same background color -- so what you measure here is what the study will show.</div>
     <div class="row" id="mode-note-category" style="color:#aaa; display:none;">arrow keys also work. this is exactly categoryCssColorFor()'s render path (renderColor() with the clamp-to-gamut policy, never black) -- the same function the categorization task uses.</div>
-    <div class="row" id="mode-note-legacy" style="color:#aaa; display:none;">arrow keys also work. these are the static hex codes from legacy/as_run_colors.json (ADJUSTED_COLORS_1/_2) -- the OLD, incorrectly-calibrated standard-sRGB pipeline that was actually shown to the first 25 participants (20 on monitor 1, 5 on monitor 2), before the gun-pipeline fix. the RGB square is NOT run through renderColor() -- it's the legacy hex shown verbatim -- but the xyY target above is the same canonical target + adjustments the (buggy) old pipeline was aiming for.</div>
+    <div class="row" id="mode-note-legacy" style="color:#aaa; display:none;">arrow keys also work. these are the static hex codes from legacy/as_run_colors.json (ADJUSTED_COLORS_1/_2) -- the OLD, incorrectly-calibrated standard-sRGB pipeline that was actually shown to the first 25 participants (20 on monitor 1, 5 on monitor 2), before the gun-pipeline fix. the RGB square is NOT run through renderColor() -- it's the legacy hex shown verbatim -- but the xyY target above is the same canonical UW58 target the (buggy) old pipeline was aiming for.</div>
     <div class="row" style="color:#aaa;">press <strong>f</strong> or the fullscreen button to enter/exit fullscreen (hides browser chrome so it doesn't affect what the spectroradiometer sees).</div>
     <div id="warning"></div>
 </div>
@@ -218,6 +219,7 @@
     var fIndex = document.getElementById("f-index");
     var fIdentity = document.getElementById("f-identity");
     var fTarget = document.getElementById("f-target");
+    var fTargetAdj = document.getElementById("f-target-adj");
     var fRgb = document.getElementById("f-rgb");
     var rowClamp = document.getElementById("row-clamp");
     var fClamped = document.getElementById("f-clamped");
@@ -280,8 +282,10 @@
         var x = item.target.x + adj.dx + off.x;
         var y = item.target.y + adj.dy + off.y;
         var Y = item.target.Y + adj.dY + off.Y;
-        fTarget.textContent = "x=" + x.toFixed(4) + "  y=" + y.toFixed(4) + "  Y=" + Y.toFixed(2) +
+        fTarget.textContent = "x=" + item.target.x.toFixed(4) + "  y=" + item.target.y.toFixed(4) +
+            "  Y=" + item.target.Y.toFixed(2) +
             (item.legacy ? "  (target -- old pipeline mis-encoded this to RGB, shown at right)" : "");
+        fTargetAdj.textContent = "x=" + x.toFixed(4) + "  y=" + y.toFixed(4) + "  Y=" + Y.toFixed(2);
 
         fRgb.textContent = css + "  (#" + rgb.map(function (v) {
             return ("0" + v.toString(16).toUpperCase()).slice(-2);
