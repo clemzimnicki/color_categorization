@@ -455,6 +455,25 @@ timeline.push(instructions_consent_pre_loop);
             data.block       = jsPsych.timelineVariable('block', true);
             data.correct     = null;
             data.task        = 'categorization_nofeedback';
+            // Flag responses faster than 500 ms (same threshold as the triplet task)
+            data.speedy      = data.rt < 500;
+        }
+    };
+
+    // ---- "Too fast" warning for no-feedback trials ----
+    var cat_speed_warning = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: "<p><strong>You're going too fast.</strong></p>" +
+                  "<p>Please slow down and carefully categorize each color.</p>" +
+                  "<p>Press 'y' to continue.</p>",
+        choices: ["y"]
+    };
+
+    var cat_speed_node = {
+        timeline: [cat_speed_warning],
+        conditional_function: function() {
+            var last = jsPsych.data.get().last(1).values()[0];
+            return (last.task === 'categorization_nofeedback' && last.speedy === true);
         }
     };
 
@@ -544,7 +563,7 @@ timeline.push(instructions_consent_pre_loop);
     };
 
     var practice_nofb_procedure = {
-        timeline: [fixation, cat_trial_nofeedback],
+        timeline: [fixation, cat_trial_nofeedback, cat_speed_node],
         timeline_variables: practiceNofbStimuli,
         randomize_order: true
     };
@@ -622,7 +641,7 @@ timeline.push(instructions_consent_pre_loop);
         };
 
         var nofeedback_procedure = {
-            timeline: [fixation, cat_trial_nofeedback],
+            timeline: [fixation, cat_trial_nofeedback, cat_speed_node],
             timeline_variables: nofbStimuli,
             randomize_order: true
         };
@@ -693,7 +712,7 @@ timeline.push(instructions_consent_pre_loop);
         };
 
         var nofeedback_procedure = {
-            timeline: [fixation, cat_trial_nofeedback],
+            timeline: [fixation, cat_trial_nofeedback, cat_speed_node],
             timeline_variables: nofbStimuli,
             randomize_order: true
         };
