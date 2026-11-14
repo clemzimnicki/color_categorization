@@ -28,7 +28,6 @@
     <script src ="validationPicked.json"></script>
     <script src ="validationRandom.json"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
-    <script src="https://unpkg.com/@jspsych/extension-pipe@0.2.0"></script>
     <link href="jspsych/jspsych.css" rel="stylesheet" type="text/css" />
     
     <style>
@@ -55,22 +54,7 @@
     // monitorNum is known. (D65 illuminant gray.)
     document.body.style.backgroundColor = "rgb(95,95,95)"
 
-    const jsPsych = initJsPsych({
-        extensions: [
-            {
-            type: jsPsychExtensionPipe,
-            params: {
-                experiment_id: "1FSbL0eaoaj8",
-                filename: () => `category_${monitorNum}_${secret_code}.csv`
-                // var filename = "category_" + monitorNum + "_" + secret_code + ".csv"; // CHANGE THIS (file name)
-            }
-            }
-        ]
-     });
-
-    //const subject_id = jsPsych.randomization.randomID(10);
-
-    const timeline = [];
+    var jsPsych = initJsPsych();
 
     
     // generating a user id and file name for SONA
@@ -116,18 +100,20 @@
     var unambiguousCatStims = (monitorNum === 2) ? unambiguousCatStims2 : unambiguousCatStims;
 
 
+    var filename = "category_" + monitorNum + "_" + secret_code + ".csv"; // CHANGE THIS (file name)
+
     // this is to save to OSF using DataPipe
     //if want to save data more often, copy this and change the name, and save halfway through
-   /*   const save_data = { 
+      const save_data = { 
         type: jsPsychPipe,
         action: "save",
         experiment_id: "h88cXO45kzbn", // SONA = "W31dcwJTrTgj", //change this for different experiments in datapipe
         filename: filename,
         data_string: ()=>jsPsych.data.get().csv()
       };
-*/
+
           /* create timeline */
-    //var timeline = [];
+    var timeline = [];
 
     // preload stimuli
     var preload = {
