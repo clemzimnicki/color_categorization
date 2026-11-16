@@ -54,7 +54,26 @@
     // monitorNum is known. (D65 illuminant gray.)
     document.body.style.backgroundColor = "rgb(95,95,95)"
 
-    var jsPsych = initJsPsych();
+    const jsPsych = initJsPsych({
+    extensions: [
+        {
+        type: jsPsychExtensionPipe,
+        params: {
+            experiment_id: "1FSbL0eaoaj8",
+            filename: () => `category_1_${subject_id}.csv`
+            //var filename = "category_" + monitorNum + "_" + secret_code + ".csv"; // CHANGE THIS (file name)
+
+        }
+        }
+    ]
+    });
+
+    const subject_id = jsPsych.randomization.randomID(10);
+
+    const timeline = [];
+    // ...add your trials to the timeline...
+
+    jsPsych.run(timeline);
 
     
     // generating a user id and file name for SONA
@@ -99,21 +118,18 @@
     var categoryStims       = (monitorNum === 2) ? categoryStims2       : categoryStims;
     var unambiguousCatStims = (monitorNum === 2) ? unambiguousCatStims2 : unambiguousCatStims;
 
-
-    var filename = "category_" + monitorNum + "_" + secret_code + ".csv"; // CHANGE THIS (file name)
-
     // this is to save to OSF using DataPipe
     //if want to save data more often, copy this and change the name, and save halfway through
-      const save_data = { 
+    /*  const save_data = { 
         type: jsPsychPipe,
         action: "save",
         experiment_id: "h88cXO45kzbn", // SONA = "W31dcwJTrTgj", //change this for different experiments in datapipe
         filename: filename,
         data_string: ()=>jsPsych.data.get().csv()
       };
-
+*/
           /* create timeline */
-    var timeline = [];
+    //var timeline = [];
 
     // preload stimuli
     var preload = {
@@ -1490,7 +1506,7 @@ var demographics = {
    };
   
 
-    timeline.push(save_data);
+    //timeline.push(save_data);
     timeline.push(goodbye);
 
           //Exit fullscreen
