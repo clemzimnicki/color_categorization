@@ -1497,12 +1497,12 @@ var demographics = {
         + "through similarity tasks like the second task you did, the triplet task. We expect that people will systematically differ in their<br>"
         + "perceptions of how similar colors are to each other. We also expect that these differences between people will be<br>"
         + "reflected in a second categorization task, which would mean that they affect our behavior in several different ways."
-        + "You may now exit this page. Thank you for participating!</p>"
+        + "<br><br>Thank you for participating! Please click <b>Finish</b> to submit your data, and do not close this page until it says you may.</p>"
         
       return output;
       },
       
-      choices: "NO_KEYS"
+      choices: ["Finish"]
    };
   
 
@@ -1511,7 +1511,7 @@ var demographics = {
 
           //Exit fullscreen
     timeline.push({
-    type: 'fullscreen',
+    type: jsPsychFullscreen,
     fullscreen_mode: false
     })
 
